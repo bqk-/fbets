@@ -1,0 +1,25 @@
+<?php
+
+return array(
+    'suclogin' => 'You have been logged in.',
+    'faillogin' => 'Invalide email address / username.',
+    'suclogout' => 'You have successfully logged out.',
+    'sucreminderemail' => 'Instructions to reset your password have been sent.',
+    'invalidemail' => 'Invalid email address.',
+    'welcome' => 'Welcome to the site',
+    'correcterrors' => 'Please correct the following errors:',
+    'reseterror' => 'Wrong / Outdated link, please try again.',
+    'sucreset' => 'Your password is changed, you can now log in.',
+    'sucresetlogged' => 'Your password is changed.',
+    'needlogin' => 'You need to be logged to access this page.',
+    'notexisting_group' => 'This group doesn\'t exist.',
+    'succreate_group' => 'Congratulation on creating a group, you can now invite your friend !',
+    'sucapply_group' => 'Your application has been submitted.',
+    'errors_application' => 'Your application has errors, please correct them.',
+    'sucapply_group_propose' => 'Applications submitted to your group.',
+    'errors_application_propose' => 'An error occured, please retry.',
+    'notingroup' => 'Not a member of this group',
+    'nameexists' => 'This name is already taken',
+    'somethingexists' => 'Either name or email is already register',
+    'unexpected_error' => 'An unexepected error occured, please try again',
+);

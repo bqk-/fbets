@@ -1,0 +1,7 @@
+/storage
+/vendor
+.git
+/nbproject
+.env
+.env.*
+deploy*

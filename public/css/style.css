@@ -1,0 +1,89 @@
+body {
+    padding-top: 0px;
+}
+ 
+p.logged-in {
+    color: white;
+    margin-top: 0.5em;
+}
+
+#main {
+    margin-top: 40px;
+}
+
+footer {
+    margin:5em 0;
+}
+
+.navbar {
+    border-radius: 0;
+}
+
+.homebuttons{
+    margin-top: 50px;
+}
+
+.bets-input input{
+    width: 20px;
+}
+
+.homebox .glyphicon-chevron-right, .homebox .glyphicon-chevron-left, .list-group-item .glyphicon{
+    cursor:pointer;
+}
+
+.loading .glyphicon {
+    -webkit-animation: spin .7s infinite linear;
+    font-size: 40px;
+    line-height: 150px;
+}
+.loading {
+    text-align: center;
+}
+.homebox .ajax-content {
+    margin: 0 auto;
+}
+.homerow img {
+    width: 20px;
+    height: auto;
+}
+
+
+@-webkit-keyframes "spin" {
+ from { 
+        -webkit-transform: rotate( 0deg );  
+    }
+ to  { 
+        -webkit-transform: rotate( 360deg ); 
+    }
+}
+
+.clicked {
+    border: 1px solid blue;
+    border-radius: 2px;
+}
+
+.clickable1, .clickable2 {
+    cursor: pointer;
+}
+
+.deleleable {
+    cursor: pointer;
+}
+
+.deleleable:hover{
+    background-color: rgba(204,65,37,0.3);
+    border:1px solid #979AAA !important;
+}
+
+.autocomplete-box{
+    list-style-type: none;
+    background-color: #cc4125;
+}
+
+.autocomplete-box li {
+    border-bottom: 1px solid #cc1204;
+}
+
+.users_actual {
+    height: 24px;
+}
