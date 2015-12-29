@@ -7,6 +7,7 @@ html {
 
 body {
   background: #1a1a1a;
+  background: #9fa8a3;
   padding: 0;
   margin: 0;
   width: 100%;
@@ -26,7 +27,41 @@ body {
   padding: 0;
   margin: 0;
   height: 100%;
-  background: #2c3e50;
-  /* navy */ }
+  min-width: 220px;
+  background: #22313F; }
+  .fold div {
+    margin-bottom: 5px;
+    background: #2c3e50;
+    /* navy */ }
+  .fold .portrait {
+    padding: 15% 0 5% 0; }
+    .fold .portrait .name {
+      text-align: center;
+      color: #e3e0cf;
+      font-family: Jura;
+      font-size: 1.3em; }
+      .fold .portrait .name .glyphicon {
+        font-size: 0.75em;
+        vertical-align: middle;
+        margin-top: -0px; }
+  .fold .mainmenu {
+    padding: 5% 0 5% 0;
+    text-transform: uppercase;
+    font-family: Jura;
+    font-size: 1.1em; }
+
+.list {
+  padding: 0; }
+  .list a {
+    text-decoration: none;
+    color: #e3e0cf; }
+  .list li {
+    padding: 5% 15%; }
+    .list li .glyphicon {
+      padding-right: 10%;
+      vertical-align: middle;
+      margin-top: -5px; }
+    .list li:hover {
+      border-left: 5px solid #1E8BC3; }
 
 /*# sourceMappingURL=app.css.map */
