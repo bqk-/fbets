@@ -40,7 +40,7 @@ Route::get('/view/{type?}/{id?}', function($type = null, $id = null)
     }
 });
 
-Route::when('*', 'csrf', array('post'));
+//Route::match('*', 'csrf', array('post'));
 
 Route::controller('ajax', 'App\Http\Controllers\AjaxController');
 
@@ -50,16 +50,10 @@ Route::controller('javascript', 'App\Http\Controllers\JavascriptController');
 
 //ADMIN ROUTES + FILTER
 Route::group(['prefix' => 'admin'], function () {
-    Route::get('users', function ()    {
-        // Matches The "/admin/users" URL
-    });
-});
-Route::when('admin*', 'admin');
-Route::filter('admin', function()
-{
     if(!(Auth::check() && in_array(Auth::user()->id, App\Http\Controllers\AdminController::$admins)))
         return Redirect::to('/');
 });
+
 Route::controller('admin', 'App\Http\Controllers\AdminController');
 
 //What's left
