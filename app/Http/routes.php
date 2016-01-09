@@ -42,19 +42,28 @@ Route::get('/view/{type?}/{id?}', function($type = null, $id = null)
 
 //Route::match('*', 'csrf', array('post'));
 
-Route::controller('ajax', 'App\Http\Controllers\AjaxController');
+/*
+|--------------------------------------------------------------------------
+| Application Routes
+|--------------------------------------------------------------------------
+|
+| This route group applies the "web" middleware group to every route
+| it contains. The "web" middleware group is defined in your HTTP
+| kernel and includes session state, CSRF protection, and more.
+|
+*/
 
-Route::controller('group', 'App\Http\Controllers\GroupController');
+Route::group(['middleware' => ['web']], function () {
+    Route::controller('ajax', 'App\Http\Controllers\AjaxController');
 
-Route::controller('javascript', 'App\Http\Controllers\JavascriptController');
+    Route::controller('group', 'App\Http\Controllers\GroupController');
 
-//ADMIN ROUTES + FILTER
-Route::group(['prefix' => 'admin'], function () {
-    if(!(Auth::check() && in_array(Auth::user()->id, App\Http\Controllers\AdminController::$admins)))
-        return Redirect::to('/');
+    Route::controller('javascript', 'App\Http\Controllers\JavascriptController');
+
+    Route::group(['middleware' => ['admin']], function () {
+        Route::controller('admin', 'App\Http\Controllers\AdminController');
+    });
+
+    //What's left
+    Route::controller('/', 'App\Http\Controllers\HomeController');
 });
-
-Route::controller('admin', 'App\Http\Controllers\AdminController');
-
-//What's left
-Route::controller('/', 'App\Http\Controllers\HomeController');

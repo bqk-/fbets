@@ -92,7 +92,7 @@ class UserService
         
         if(Auth::attempt(array('email' => $email, 'password' => $password), $remember))
         {   
-            $this->CurrentUser = $this->app->make('Contracts\ICurrentUser');
+            $this->CurrentUser = App::make('Contracts\ICurrentUser');
             return true;
         }
         

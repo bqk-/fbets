@@ -27,6 +27,7 @@
     <div class="form-actions text-center">
     {!! Form::submit(trans('forms.loginbutton'), array('class' => 'btn btn-default')) !!}
     </div>
+    CSRF{{ csrf_field() }}
     {!! Form::close() !!}
   <p>Not a member?  <a href="register">Register here</a>.</p>
 </div>

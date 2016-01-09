@@ -39,7 +39,6 @@ class HomeController extends Controller {
             UserService $userService,
             SportService $sportService)
     {
-        $this->beforeFilter('csrf', array('on' => array('post')));
         $this->_gameService = $gameService;
         $this->_betService = $betService;
         $this->_userService = $userService;
