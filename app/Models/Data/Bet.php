@@ -13,5 +13,4 @@ class Bet extends Model {
     public function user(){
         return $this->belongsTo('App\Models\Data\User', 'id_user');
     }
-
 }

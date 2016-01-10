@@ -6,22 +6,21 @@
  * Time: 21:51
  */
 
-namespace App\Models\Admin;
+namespace App\Models\Admin\Tournament;
 
-use App\Models\Data\Game;
+use App\Models\Admin\TournamentClasses\Game;
+use App\Models\Admin\TournamentClasses\Team;
+use App\Models\Admin\TournamentClasses\Score;
 
 class Lequipe_Rugby implements iTournament {
-
-    private $scores = array();
     private $games = array();
     private $teams = array();
-
     private $end;
     private $beg;
     private $nb_journees;
 
     public function __construct($start, $end){
-        $this->end = preg_replace("/[^0-9]/","",$end);
+         $this->end = preg_replace("/[^0-9]/","",$end);
         $this->beg = preg_replace("/[^0-9]/","",$start);
 
         $this->nb_journees = $this->end-$this->beg+1;
@@ -60,40 +59,50 @@ class Lequipe_Rugby implements iTournament {
 
                     if(empty($heure))
                         $heure = array(1=>'20','00');
+                    
                     $sqltime = $datecomplete[3].'-'.sprintf('%02d',array_search($datecomplete[2], $mo)).'-'.sprintf('%02d',$datecomplete[1]).' '.$heure[1].':'.$heure[2].':00';
 
-                    $team1 = crc32(utf8_encode($domicile[2]));
-                    $team2 = crc32(utf8_encode($exterieur[2]));
+                    preg_match('#idClub1="([0-9]+)" idClub2="([0-9]+)" idmatch="([0-9]+)"#', 
+                            html_entity_decode($match, ENT_COMPAT, 'ISO-8859-1'), $ids);
+                    
+                    preg_match('#<a class="disabled">([0-9]+)h([0-9]+)</a>#', $match, $heure);
+                    
+                    if(empty($heure))
+                        preg_match('#<div class="heure ">([0-9]+)h([0-9]+)[ ]*<br /></div>#', $match, $heure);
 
-                    $g = new Game;
-                    $g->team1 = $team1;
-                    $g->team2 = $team2;
-                    $g->logo1 = $domicile[1];
-                    $g->logo2 = $exterieur[1];
-                    $g->score = $score[1];
-                    $g->date = $sqltime;
+                    if(empty($heure))
+                        $heure = array(1=>'20','00');
+                    $sqltime = $datecomplete[3].'-'.sprintf('%02d',array_search($datecomplete[2], $mo)).'-'.sprintf('%02d',$datecomplete[1]).' '.$heure[1].':'.$heure[2].':00';
+
+                    $team1 = $ids[1];
+                    $team2 = $ids[2];
 
                     if(!array_key_exists($team1, $this->teams))
                     {
-                        $t = new Team;
-                        $t->name = utf8_encode($domicile[2]);
-                        $t->logo = $domicile[1];
-                        $t->id = $team1;
-                        $this->teams[crc32(utf8_encode($domicile[2]))] = $t;
+                        $t1 = new Team($team1, utf8_encode($domicile[2]), $domicile[1]);
+                        $this->teams[$team1] = $t1;
                     }
 
                     if(!array_key_exists($team2, $this->teams))
                     {
-                        $t = new Team;
-                        $t->name = utf8_encode($exterieur[2]);
-                        $t->logo = $exterieur[1];
-                        $t->id = $team2;
-                        $this->teams[crc32(utf8_encode($exterieur[2]))] = $t;
+                        $t2 = new Team($team2, utf8_encode($exterieur[2]), $exterieur[1]);
+                        $this->teams[$team2] = $t2;
                     }
+                    
+                    $s = null;
 
-                    $this->games[$g->team1.'-'.$g->team2] = $g;
-
-                    $this->scores[$g->team1.'-'.$g->team2]= $score[1];
+                    if(!empty($score))
+                    {
+                        $s = new Score(
+                                explode('-', $score[1])[0], 
+                                explode('-', $score[1])[1], 
+                                $this->getGameStateFromScore(
+                                        explode('-', $score[1])[0], 
+                                        explode('-', $score[1])[1]));
+                    }
+                    
+                    $g = new Game($ids[3], $t1, $t2, $sqltime, $s);
+                    $this->games[$ids[3]] = $g;
                 }
             }
         }
@@ -104,22 +113,21 @@ class Lequipe_Rugby implements iTournament {
         return $this->games;
     }
 
-    function getScore($team1, $team2)
+    function getScore($gameId)
     {
-        if(!empty($this->scores[$team1.'-'.$team2])){
-            $s = explode('-',$this->scores[$team1.'-'.$team2]);
-            if($s[0] != '' && $s[1] != '')
-                return $this->scores[$team1.'-'.$team2];
+        if(!empty($this->games[$gameId]))
+        {
+            return $this->games[$gameId]->Score;
         }
 
         return null;
     }
 
-    function getGameTime($team1, $team2)
+    function getGameTime($idExtGame)
     {
-        if(!empty($this->games[$team1.'-'.$team2]))
+        if(!empty($this->games[$idExtGame]))
         {
-            return $this->games[$team1.'-'.$team2]->date;
+            return $this->games[$idExtGame]->Date;
         }
 
         return null;
@@ -128,5 +136,31 @@ class Lequipe_Rugby implements iTournament {
     function getTeams()
     {
         return $this->teams;
+    }
+
+    public function getGameStateFromScore($scoreH, $scoreV)
+    {
+        if(is_int($scoreH) && is_int($scoreV))
+        {
+            if($scoreH > $scoreV)
+            {
+                return \App\Models\Types\GameStates::HOME;
+            }
+            elseif ($scoreH < $scoreV)
+            {
+                return \App\Models\Types\GameStates::VISITOR;
+            }
+            else
+            {
+                return \App\Models\Types\GameStates::DRAW;
+            }
+        }
+        
+        return \App\Models\Types\GameStates::NONE;
+    }
+
+    public function getType()
+    {
+        return \App\Models\Admin\iTournamentType::CHAMPIONSHIP;
     }
 }

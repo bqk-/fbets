@@ -22,7 +22,7 @@ class TeamService {
             return $this->_teamRepository->GetAllTeamsForDropdown();
         }
         
-        return $this->_teamRepository->GetTeamsForDropDown($sportId);
+        return $this->_teamRepository->GetTeamsForDropdownBySport($sportId);
     }
 
     public function GetTeamsWithRelations($sportId)
@@ -41,29 +41,11 @@ class TeamService {
         return $this->_teamRepository->GetRelations($id);
     }
 
-    public function SaveTeamsWithRelations($teams, $actions, $champId, $sportId)
+    public function SaveTeam(\App\Models\Admin\TournamentClasses\Team $team, $champId, $sportId)
     {
-        $teamsId = array();
-        foreach ($teams as $team)
-        {
-            if(array_key_exists($team->id, $actions))
-            {
-                if($actions[$team->id] == 0)
-                {
-                    $id = $this->Create($team, $sportId);
-                    $this->_teamRepository->RegisterRelation($id, $team->id, $champId);
+        $id = $this->Create($team->Name, $team->LogoUrl, $sportId);
+        $this->_teamRepository->RegisterRelation($id, $team->Id, $champId);
 
-                }
-                else
-                {
-                    $this->_teamRepository->RegisterRelation($actions[$team->id], $team->id, $champId);
-                    $id = $actions[$team->id];
-                }
-
-                $teamsId[$team->id] = $id;
-            }
-        }
-
-        return $teamsId;
+        return $id;
     }
 }

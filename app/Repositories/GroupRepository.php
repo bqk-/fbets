@@ -2,6 +2,7 @@
 
 use App\Models\Data\User;
 use App\Models\Data\Group;
+use App\Models\Data\GroupNotification;
 use App\Repositories\Contracts\IGroupRepository;
 
 class GroupRepository implements IGroupRepository
@@ -10,6 +11,12 @@ class GroupRepository implements IGroupRepository
     {
     }
     
+    /**
+    * Returns group from id
+    *
+    * @param int $id id of the group
+    * @return App\Models\Data\Group the group
+    */
     public function Get($id)
     {
         $group = Group::find($id);
@@ -144,5 +151,16 @@ class GroupRepository implements IGroupRepository
         return Group::where('name', '=', $name)->get();
     }
 
+    public function GetGroupGames($id, $days)
+    {
+        $group = $this->Get($id);
+        return $group->games();
+    }
+    
+    public function GetBetsForGroupAndGame($idgroup, $idgame)
+    {
+        $group = $this->Get($idgroup);
+        return $group->games()->where('id', '=', $idgame)->first();
+    }
 }
 

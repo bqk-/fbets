@@ -167,4 +167,19 @@ class GroupService
         return $this->_groupRepository->GetByName($name) === null;
     }
 
+    public function GetGroupGames($id, $days)
+    {
+        if($days < 1)
+        {
+            throw new InvalidArgumentException('days', $days);
+        }
+        
+        return $this->_groupRepository->GetGroupGames($id, 7);
+    }
+
+    public function GetBetsForGroupAndGame($id, $param)
+    {
+        return $this->_groupRepository->GetBetsForGroupAndGame($id, $param);
+    }
+
 }

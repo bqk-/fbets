@@ -77,24 +77,4 @@ class ChampionshipService
     {
         return $this->_championshipRepository->GetWithGamesAndScores($id);
     }
-
-    public function UpdateChampionshipParams($id, array $arrayParams)
-    {
-        if(!Auth::check())
-        {
-            throw new UnauthorizedException('Cannot create championship without being logged');
-        }
-
-        if(!is_array($arrayParams))
-        {
-            throw new InvalidArgumentException('array of params', $arrayParams);
-        }
-
-        $this->_championshipRepository->UpdateChampionshipParams($id, $arrayParams);
-    }
-
-    public function ActivateChampionship($id)
-    {
-        $this->_championshipRepository->ActivateChampionship($id);
-    }
 }

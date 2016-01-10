@@ -3,6 +3,10 @@
 interface IGroupRepository
 {
 
+    public function GetBetsForGroupAndGame($idgroup, $idgame);
+
+    public function GetGroupGames($id, $days);
+
     public function GetByName($name);
 
     public function Get($id);

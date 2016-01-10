@@ -5,7 +5,7 @@ use \Auth;
 
 class InvalidOperationException extends Exception
 {
-    private $message;
+    protected $message;
 
     public function __construct($operation, Exception $previous = null)
     {

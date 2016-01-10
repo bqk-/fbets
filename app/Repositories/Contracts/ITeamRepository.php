@@ -12,5 +12,7 @@ interface ITeamRepository
     
     public function RegisterRelation($localId, $outId, $champId);
     
-    public function GetRelations($id);
+    public function GetRelation($idExt, $idChamp);
+    
+    public function GetRelations($idChamp);
 }

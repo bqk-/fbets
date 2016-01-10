@@ -21,4 +21,8 @@ class Group extends Model {
     public function notifications(){
         return $this->hasMany('App\Models\Data\GroupNotification', 'id_group', 'id');
     }
+    
+    public function games(){
+        return $this->belongsToMany('App\Models\Data\Game', 'groups_games', 'id_group', 'id_game');
+    }
 }

@@ -18,7 +18,8 @@ class ChampionshipRepository implements IChampionshipRepository
             throw new NotFoundException('Championship',  'id', $id);
         }
 
-        $championship->params = unserialize($championship->params);
+        $championship->params = $championship->params == null ? 
+                array() : unserialize($championship->params);
         return $championship;
     }
 
@@ -95,7 +96,7 @@ class ChampionshipRepository implements IChampionshipRepository
         $championship = $this->Get($id);
         if($championship->active !== 1)
         {
-            throw new InvalidOperationException('Cannot activate an active championship');
+            throw new InvalidOperationException('Cannot unactivate an unactive championship');
         }
 
         $championship->active = 0;

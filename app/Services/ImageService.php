@@ -12,6 +12,15 @@ use App\Models\Data\Game;
 
 class ImageService
 {
+    private $uploadPath;
+    private $storagePath;
+        
+    public function __construct()
+    {
+        $this->uploadPath = storage_path('app');
+        $this->storagePath = public_path('uploads');
+    }
+    
     public function Get($id)
     {
         $image = Image::find($id);
@@ -32,10 +41,10 @@ class ImageService
     public function UploadLogo($url)
     {
         $data = file_get_contents($url);
-        $file = fopen(storage_path().'/temp.img', "w+");
+        $file = fopen($this->uploadPath . '/temp.img', "w+");
         fputs($file, $data);
         fclose($file);
-        list($width, $height, $ext) = getimagesize(storage_path().'/temp.img');
+        list($width, $height, $ext) = getimagesize($this->uploadPath . '/temp.img');
         if($width > $height && 32 < $height)
         {
             $newheight = $height / ($width / 32);
@@ -51,23 +60,23 @@ class ImageService
         }
 
         $thumb = imagecreatetruecolor(32, 32);
-        $source = imagecreatefromstring(file_get_contents(storage_path().'/temp.img'));
+        $source = imagecreatefromstring(file_get_contents($this->uploadPath . '/temp.img'));
         imagecopyresized($thumb, $source, 0, 0, 0, 0, 32, 32, $newwidth, $newheight);
-        imagepng($thumb, storage_path().'/temp32.png');
+        imagepng($thumb, $this->uploadPath . '/temp32.png');
         $i = new Image;
         $i->w = 32;
         $i->h = 32;
         $i->ext = 'png';
         $i->save();
-        rename(storage_path().'/temp32.png', public_path().'/images/i'.$i->id.'.'.$i->ext);
-        unlink(storage_path().'/temp.img');
+        
+        rename($this->uploadPath . '/temp32.png', $this->storagePath . '/' . $i->id . '.' . $i->ext);
+        unlink($this->uploadPath . '/temp.img');
         return $i->id;
     }
 
     public function GetImagePath($id)
     {
-        $image = $this->Get($id);
-        return \URL::to('images') . '/i' . $image->id . $image->ext;
+        return \URL::to('uploads') . '/' . $id . '.png';
     }
 
     public function GuessLogo($team)
@@ -79,15 +88,5 @@ class ImageService
             $id = intval(\DB::table('games')->where('team2', '=', $team)->max('logo2'));
             return $id;
         }
-    }
-
-    public function GetTeam1WithoutImage() 
-    {
-        return Game::where('logo1','=',0)->groupBy('team1')->get();
-    }
-
-    public function GetTeam2WithoutImage() 
-    {
-        return Game::where('logo2','=',0)->groupBy('team2')->get();
     }
 }

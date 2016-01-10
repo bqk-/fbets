@@ -5,7 +5,7 @@ use \Auth;
 
 class InvalidArgumentException extends Exception
 {
-    private $message;
+    protected $message;
 
     public function __construct($fieldName, $value, Exception $previous = null)
     {

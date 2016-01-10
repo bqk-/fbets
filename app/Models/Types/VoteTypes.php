@@ -8,7 +8,6 @@
  */
 
 abstract class VoteTypes {
-    const NEUTRAL = 0;
     const YES = 1;
     const NO = 2;
 }

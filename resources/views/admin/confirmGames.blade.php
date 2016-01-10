@@ -31,12 +31,12 @@
                         <div class="list-group">
                             @foreach ($teams as $t)
                                 <a href="#" class="list-group-item">
-                                    @if(array_key_exists($t->id, $relations))
-                                        Local: {{ $relations[$t->id] }}
+                                    @if(array_key_exists($t->Id, $relations))
+                                        Local: {{ $relations[$t->Id] }}
                                     @else
-                                        {!! Form::select('action['.$t->id.']', $existingTeams) !!}
+                                        {!! Form::select('action['.$t->Id.']', $existingTeams) !!}
                                     @endif
-                                    <img src="{{ $t->logo }}" /> {{ $t->id }}: {{ $t->name }}
+                                    <img src="{{ $t->LogoUrl }}" /> {{ $t->Id }}: {{ $t->Name }}
                                 </a>
                             @endforeach
                         </div>
@@ -50,9 +50,9 @@
                     <div class="panel-body">
                         <div class="list-group">
                             @foreach ($games as $game)
-                                <a href="#" class="list-group-item"><img src="{{ $game->logo1 }}" /> {{ $teams[$game->team1]->name
-                                }} {{ $game->score }} {{ $teams[$game->team2]->name }} <img src="{{ $game->logo2 }}" /> | {{
-                                $game->date }}
+                                <a href="#" class="list-group-item"><img src="{{ $game->TeamHome->LogoUrl }}" /> {{ $game->TeamHome->Name
+                                }} {{ $game->Score() }} {{ $game->TeamVisit->Name }} <img src="{{ $game->TeamVisit->LogoUrl }}" /> | {{
+                                $game->Date }}
                                 </a>
                             @endforeach
                         </div>

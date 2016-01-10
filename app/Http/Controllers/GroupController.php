@@ -1,32 +1,22 @@
 <?php namespace App\Http\Controllers;
 
 use App\Services\GroupService;
+use App\Services\GameService;
 use \Redirect;
 use \View;
 use \Auth;
 use \Validator;
 use \Input;
 
-class GroupController extends Controller {
-
-    /**
-     * Setup the layout used by the controller.
-     *
-     * @return void
-     */
+class GroupController extends Controller 
+{
     private $_groupService;
-
-    public function __construct(GroupService $groupService)
+    private $_gameService;
+    
+    public function __construct(GroupService $groupService, GameService $gameService)
     {
-        $this->beforeFilter(function()
-        {
-            if(!Auth::check())
-            {
-                return Redirect::to('/');
-            }
-        });
-
         $this->_groupService = $groupService;
+        $this->_gameService = $gameService;
     }
 
     public function getIndex()
@@ -207,5 +197,33 @@ class GroupController extends Controller {
             'error',
             trans('alert.errors_application')
         );
+    }
+    
+    public function getGames($id)
+    {
+        $games = $this->_groupService->GetGroupGames($id, 7);
+
+        return view('group.games', array('games' => $games));
+    }
+    
+    public function getGame($id, $action, $param)
+    {
+        $group = $this->_groupService->Get($id);
+    
+        switch($action)
+        {
+            case "view":
+                $game = $this->_gameService->Get($param);
+                $bets = $this->_groupService->GetBetsForGroupAndGame($id, $param);
+                return view('group.game.view', 
+                    array('group' => $group, 
+                    'game' => $game, 
+                    'bets' => $bets));
+                
+            default:
+                $games = $this->_groupService->GetGroupGames($id, 7);
+                return view('group.games', array('group' => $group,
+                    'games' => $games));
+        } 
     }
 }

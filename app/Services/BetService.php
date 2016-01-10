@@ -60,11 +60,11 @@ class BetService
 
     public function GetTopBettorBetween($min, $max)
     {
-        $this->_betRepository->GetTopBettors($min, $max);
+        return $this->_betRepository->GetTopBettors($min, $max);
     }
 
     public function GetTopBettorSuperior($min)
     {
-        $this->_betRepository->GetTopBettors($min, 0);
+        return $this->_betRepository->GetTopBettors($min, 0);
     }
 }

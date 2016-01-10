@@ -3,8 +3,8 @@
 use App\Repositories\Contracts\IGameRepository;
 use App\Repositories\Contracts\IScoreRepository;
 use App\Repositories\Contracts\ISportRepository;
+use App\Repositories\Contracts\ITeamRepository;
 use Exception;
-use \Auth;
 
 /**
  * Created by PhpStorm.
@@ -19,15 +19,18 @@ class GameService
     private $_scoreRepository;
     private $_sportRepository;
     private $CurrentUser;
+    private $_teamRepository;
 
     public function __construct(IGameRepository $gameRepository, 
             IScoreRepository $scoreRepository,
             ISportRepository $sportRespository,
+            ITeamRepository $teamRepository,
             \App\Services\Contracts\ICurrentUser $currentUser)
     {
         $this->_gameRepository = $gameRepository;
         $this->_scoreRepository = $scoreRepository;
         $this->_sportRepository = $sportRespository;
+        $this->_teamRepository = $teamRepository;
         $this->CurrentUser = $currentUser;
     }
 
@@ -62,31 +65,24 @@ class GameService
         $game->save();
     }
 
-    public function Create($game, $idChamp, $teamsId)
+    public function Create(\App\Models\Admin\TournamentClasses\Game $game, $idChamp, $relations)
     {
-        $g = new Game();
-        $g->id_championship = $idChamp;
-        $g->team1 = $teamsId[$game->team1];
-        $g->team2 = $teamsId[$game->team2];
-        $g->date = $game->date;
-        $g->save();
-        return $g->id;
-    }
-
-    public function CreateFromPost($team1, $team2, $event, $date, $time)
-    {
-        $g = new Game;
-        $g->team1 = $team1;
-        $g->team2 = $team2;
-        $g->id_championship = $event;
-        $g->date = $date.' '.$time.':00';
-        $g->save();
-        return $g->id;
-    }
-
-    public function DropGamesForChampionship($id)
-    {
-        return $this->_gameRepository->DropGamesForChampionship($id);
+       $id = $this->_gameRepository->Create($relations[$game->TeamHome->Id], 
+                $relations[$game->TeamVisit->Id],
+                $idChamp,
+                $game->Date);
+        
+        $this->_gameRepository->CreateRelation($game->Id, $id);
+        
+        if($game->Score != null)
+        {
+            $this->_scoreRepository->AddScore($id,
+                    $game->Score->TeamHome, 
+                    $game->Score->TeamVisit, 
+                    $game->Score->State);
+        }
+        
+        return $id;
     }
 
     public function GetNext7DaysGames()

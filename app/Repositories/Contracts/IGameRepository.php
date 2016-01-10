@@ -1,8 +1,11 @@
 <?php namespace App\Repositories\Contracts;
 
 interface IGameRepository
-{
-
+{    
+    public function Create($teamh, $teamv, $champId, $date);
+    
+    public function CreateRelation($outId, $localId);
+        
     public function Suggest($sport, $team1, $team2, $event, $date, $userId);
 
     public function GetUserSuggestions($id);

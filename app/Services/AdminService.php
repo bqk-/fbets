@@ -116,9 +116,29 @@ class AdminService
         $championship = $this->_championshipRepository->Get($id);
         $arrayParams = $this->GetConstructorParamsFromName($championship->type);
 
-        return new ChampionshipConstructorParams($championship, $arrayParams, $championship);
+        return new ChampionshipConstructorParams($championship, $arrayParams, $championship->params);
     }
+    
+    public function UpdateChampionshipParams($id, array $arrayParams)
+    {
+        if(!is_array($arrayParams))
+        {
+            throw new InvalidArgumentException('array of params', $arrayParams);
+        }
 
+        $this->_championshipRepository->UpdateChampionshipParams($id, $arrayParams);
+    }
+    
+    public function DropGamesForChampionship($id)
+    {
+        return $this->_gameRepository->DropGamesForChampionship($id);
+    }
+    
+    public function ActivateChampionship($id)
+    {
+        $this->_championshipRepository->ActivateChampionship($id);
+    }
+    
     public function GetConstructorParamsFromClassname($name)
     {
         return $this->GetConstructorParamsFromName($name);
@@ -126,7 +146,7 @@ class AdminService
 
     private function GetFullClassName($name)
     {
-        return 'App\Models\Admin\\'. $name;
+        return 'App\Models\Admin\Tournament\\'. $name;
     }
 
     private function GetConstructorParamsFromName($name)

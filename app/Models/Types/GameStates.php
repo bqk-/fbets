@@ -8,6 +8,7 @@
  */
 
 abstract class GameStates {
+    const NONE = 0;
     const HOME = 1;
     const VISITOR = 2;
     const DRAW = 3;

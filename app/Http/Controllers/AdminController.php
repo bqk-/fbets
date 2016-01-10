@@ -7,16 +7,13 @@ use App\Services\AdminService;
 use App\Services\ChampionshipService;
 use App\Services\GameService;
 use App\Services\ImageService;
-use App\Services\ScoreService;
 use App\Services\SportService;
 use App\Services\TeamService;
 use \Auth;
 use App\Models\Data\Suggestion;
 use \View;
 use \Redirect;
-use \DB;
 use \Artisan;
-use \Config;
 use \Input;
 use \Validator;
 use \Session;
@@ -47,11 +44,10 @@ class AdminController extends Controller {
     private $_championshipService;
     private $_teamService;
     private $_sportService;
-    private $_scoreService;
 
     public function __construct(AdminService $adminService, ImageService $imageService, GameService $gameService,
                                     ChampionshipService $championshipService, TeamService $teamService, SportService
-        $sportService, ScoreService $scoreService)
+        $sportService)
     {
         $this->_adminService = $adminService;
         $this->_imageService = $imageService;
@@ -59,7 +55,6 @@ class AdminController extends Controller {
         $this->_championshipService = $championshipService;
         $this->_teamService = $teamService;
         $this->_sportService = $sportService;
-        $this->_scoreService = $scoreService;
     }
 
     public function getIndex()
@@ -220,34 +215,29 @@ class AdminController extends Controller {
         if(Input::has('id_champ') && Input::has('id_champ') > 0)
         {
             $champ = $this->_championshipService->Get(Input::get('id_champ'));
-            $this->_championshipService->UpdateChampionshipParams(Input::get('id_champ'), serialize(Input::get('param')));
-            $this->_championshipService->ActivateChampionship(Input::get('id_champ'));
-
+            $this->_adminService->UpdateChampionshipParams(Input::get('id_champ'), Input::get('param'));
+            
+            if($champ->active == 0)
+            {
+                $this->_adminService->ActivateChampionship(Input::get('id_champ'));
+            }
+            
             $workingClass = $this->_adminService->GetWorkingClassForChampionship(Input::get('id_champ'));
 
             $games = $workingClass->getGames();
             $teams = $workingClass->getTeams();
-
-            if(Input::has('action'))
+            $relations = array();
+            
+            foreach($teams as $team)
             {
-                $actions = Input::get('action');
+                $relations[$team->Id] = $this->_teamService->SaveTeam($team,                              
+                        $champ->id, 
+                        $champ->id_sport);
             }
-            else
-            {
-                $actions = array();
-            }
-
-            $teamsId = $this->_teamService->SaveTeamsWithRelations($teams, $actions, $champ->id, $champ->id_sport);
 
             foreach ($games as $game)
             {
-                $gameId = $this->_gameService->Create($game, $champ->id, $teamsId);
-
-                $score = explode('-', $game['score']);
-                if($score[0]!=='')
-                {
-                    $this->_scoreService->Create($gameId, $score[0], $score[1]);
-                }
+                $this->_gameService->Create($game, $champ->id, $relations);
             }
 
             return Redirect::to('admin/')->with('success', count($games) . ' games added');
@@ -358,15 +348,18 @@ class AdminController extends Controller {
     {
         if(Input::has('championship') && Input::get('championship') > 0)
         {
+            $this->_adminService->UpdateChampionshipParams(Input::get('championship'), Input::get('param'));
             $model = $this->_adminService->GetChampionshipConstructorParams(Input::get('championship'));
-            $workingClass = $this->_adminService->GetWorkingClassForChampionship(Input::get('championship'));
+            $workingClass = $this->_adminService->GetWorkingClassForChampionship(
+                    Input::get('championship'),
+                    Input::get('param'));
 
             $games = $workingClass->getGames();
             $teams = $workingClass->getTeams();
             $existingTeams = $this->_teamService->GetTeamsForDropdown($model->GetChampionship()->id_sport);
             $relations = $this->_teamService->GetRelations($model->GetChampionship()->id);
 
-            $existingTeams = [0 => 'NEW'] + $existingTeams;
+            $existingTeams->prepend('NEW', 0);
 
             return View::make('admin/confirmGames',
                 array('championship' => $model->GetChampionship(),
@@ -391,7 +384,7 @@ class AdminController extends Controller {
     {
         if(Input::has('hidden') && Input::get('hidden') > 0)
         {
-            $this->_gameService->DropGamesForChampionship(Input::get('hidden'));
+            $this->_adminService->DropGamesForChampionship(Input::get('hidden'));
             return Redirect::to('admin/view-championship/' . Input::get('hidden'))->with(array('success'=>'Games
             deleted'));
         }

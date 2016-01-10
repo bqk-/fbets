@@ -7,7 +7,7 @@ use App\Repositories\Contracts\IScoreRepository;
 class ScoreRepository implements IScoreRepository
 {
 
-    public function AddScore($idGame, $scoreTeam1, $scoreTeam2)
+    public function AddScore($idGame, $scoreTeam1, $scoreTeam2, $state)
     {
         if($scoreTeam1 == '' || $scoreTeam2 == '')
         {
@@ -18,6 +18,8 @@ class ScoreRepository implements IScoreRepository
         $s->id_game = $idGame;
         $s->team1 = $scoreTeam1;
         $s->team2 = $scoreTeam2;
+        $s->prediction = $state;
+        $s->state = 0;
         $s->save();
         return $s->id;
     }
