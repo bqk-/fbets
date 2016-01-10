@@ -4,7 +4,6 @@ use App\Exceptions\InvalidArgumentException;
 use App\Exceptions\MissingArgumentException;
 use App\Exceptions\OutOfRangeException;
 use App\Repositories\Contracts\IChampionshipRepository;
-use \DB;
 use Illuminate\Contracts\Validation\UnauthorizedException;
 use Illuminate\Support\Facades\Auth;
 

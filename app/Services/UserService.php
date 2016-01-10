@@ -90,13 +90,7 @@ class UserService
             Auth::login($this->UserRepository->MasterLogin($email));
         }
         
-        if(Auth::attempt(array('email' => $email, 'password' => $password), $remember))
-        {   
-            $this->CurrentUser = App::make('Contracts\ICurrentUser');
-            return true;
-        }
-        
-        return false;
+        return Auth::attempt(array('email' => $email, 'password' => $password), $remember);
     }
 
     public function LogOut() 

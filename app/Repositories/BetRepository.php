@@ -1,7 +1,6 @@
 <?php namespace App\Repositories;
 
 use App\Exceptions\NotFoundException;
-use App\Helpers\EnumHelper;
 use App\Models\Data\Bet;
 use \DB;
 use App\Repositories\Contracts\IBetRepository;

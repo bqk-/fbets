@@ -1,20 +1,22 @@
 <?php namespace App\Services;
 
 use App\Repositories\Contracts\IBetRepository;
-use \Auth;
+use App\Services\Contracts\ICurrentUser;
 
 class BetService
 {
     private $_betRepository;
+    private $_currentUser;
 
-    public function __construct(IBetRepository $betRepository)
+    public function __construct(IBetRepository $betRepository, ICurrentUser $currentUser)
     {
         $this->_betRepository = $betRepository;
+        $this->_currentUser = $currentUser;
     }
 
     public function GetCurrentUserBetsForNext7Days()
     {
-        $bets = $this->_betRepository->GetUserIncomingBets(Auth::user()->id, 7);
+        $bets = $this->_betRepository->GetUserIncomingBets($this->_currentUser->GetId(), 7);
 
         $return = array();
         foreach ($bets as $bet)
@@ -27,7 +29,7 @@ class BetService
 
     public function GetUserPendingBets()
     {
-        $bets = $this->_betRepository->GetUserIncomingBets(Auth::user()->id, 0);
+        $bets = $this->_betRepository->GetUserIncomingBets($this->_currentUser->GetId(), 0);
 
         $return = array();
         foreach ($bets as $bet)
@@ -40,12 +42,12 @@ class BetService
 
     public function Create($idGame, $score1, $score2)
     {
-        return $this->_betRepository->Create($score1, $score2, $idGame, Auth::user()->id);
+        return $this->_betRepository->Create($score1, $score2, $idGame, $this->_currentUser->GetId());
     }
 
-    public function GetUserBetsForChampionship($id)
+    public function GetUserBetsForChampionship()
     {
-        $bets = $this->_betRepository->GetAllForUser(Auth::user()->id);
+        $bets = $this->_betRepository->GetAllForUser($this->_currentUser->GetId());
 
         $return = array();
         foreach ($bets as $bet)

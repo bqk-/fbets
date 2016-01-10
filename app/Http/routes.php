@@ -21,11 +21,11 @@ Route::get('/404', function() {
 //TODO: Move to a viewController handling view event, championship, team, whatever
 Route::get('/view/{type?}/{id?}', function($type = null, $id = null)
 {
-    $serv2 = new \App\Services\ChampionshipService();
+    $serv2 = \App::make('\App\Services\ChampionshipService');
     switch ($type) {
         case 'championship':
             $champ = $serv2->GetWithGamesAndScores($id);
-            $serv = new \App\Services\BetService();
+            $serv = \App::make('\App\Services\BetService');
             $bets = $serv->GetUserBetsForChampionship($id);
 
             return View::make('view/championship',array('champ' => $champ, 'bets' => $bets));
