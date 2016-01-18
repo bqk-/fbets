@@ -49,7 +49,8 @@ class Game
     
     public function Score()
     {
-        if($this->Score == null){
+        if($this->Score == null)
+        {
             return "";
         }
         else

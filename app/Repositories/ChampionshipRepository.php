@@ -4,7 +4,7 @@ use App\Exceptions\InvalidOperationException;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Contracts\IChampionshipRepository;
 use App\Models\Data\Championship;
-use Illuminate\Support\Facades\Auth;
+
 
 class ChampionshipRepository implements IChampionshipRepository
 {
@@ -107,6 +107,13 @@ class ChampionshipRepository implements IChampionshipRepository
     {
         return $this->Get($id)->active == 1;
     }
+
+    public function HasGames($champId)
+    {
+        $game = Championship::find($champId)->with('games')->first()->games()->first();
+        return $game != null;
+    }
+
 }
 
 

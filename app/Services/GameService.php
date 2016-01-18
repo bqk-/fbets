@@ -44,10 +44,15 @@ class GameService
         return $this->_scoreRepository->GetForGame($id);
     }
 
-    public function AddScore($idGame, $score1, $score2)
+    public function AddScore($idGame, $score1, $score2, $state)
     {
         $game = $this->_gameRepository->Get($idGame);
-        $this->_scoreRepository->AddScore($game->Id, $score1, $score2);
+        if($game == null)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Cannot add score to unknow game');
+        }
+        
+        $this->_scoreRepository->AddScore($game->Id, $score1, $score2, $state);
 
         $this->UpdateBetsForGame($game, $s);
     }
@@ -124,4 +129,8 @@ class GameService
                 $this->CurrentUser == null ? null : $this->CurrentUser->GetId());
     }
 
+    public function GetGamesWithNoScore($champId)
+    {
+        return $this->_gameRepository->GetGamesWithNoScore($champId);
+    }
 }

@@ -77,40 +77,6 @@ class AdminService
         return $workingClass;
     }
 
-    public function UpdateAllActiveChampionships()
-    {
-        \Artisan::call('down');
-        file_put_contents(\Config::get('view.paths')[0].'/ajax/progress.php', '0');
-
-        $championships = $this->_championshipRepository->GetAllActive();
-        $total = count($championships);
-        $done = 0;
-        foreach($championships as $championship)
-        {
-            $workingClass = $this->GetWorkingClassForChampionship($championship->id);
-            $games = $this->_gameRepository->GetGamesWithNoScore($championship->id);
-            foreach($games as $game)
-            {
-                if($game->date != $workingClass->getGameTime($game->team1, $game->team2))
-                {
-                    $this->_gameRepository->UpdateGameTime($game->id, $workingClass->getGameTime($game->team1,
-                        $game->team2));
-                }
-
-                $score = $workingClass->getScore($game->team1, $game->team2);
-                if($score)
-                {
-                    $this->_scoreRepository->AddScore($game->id, explode('-',$score)[0], explode('-',$score)[1]);
-                }
-            }
-            file_put_contents(\Config::get('view.paths')[0].'/ajax/progress.php', round($done++/$total*100));
-        }
-
-        \Artisan::call('up');
-
-        return $done;
-    }
-
     public function GetChampionshipConstructorParams($id)
     {
         $championship = $this->_championshipRepository->Get($id);

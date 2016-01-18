@@ -77,4 +77,10 @@ class ChampionshipService
     {
         return $this->_championshipRepository->GetWithGamesAndScores($id);
     }
+
+    public function HasGames($champId)
+    {
+        return $this->_championshipRepository->HasGames($champId);
+    }
+
 }

@@ -5,6 +5,4 @@ interface IScoreRepository
     public function AddScore($idGame, $scoreTeam1, $scoreTeam2, $state);
 
     public function GetForGame($id);
-
-    public function UpdateBetsForGame($game, $score);
 }
