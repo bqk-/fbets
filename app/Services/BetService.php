@@ -67,4 +67,10 @@ class BetService
     {
         return $this->_betRepository->GetTopBettors($min, 0);
     }
+
+    public function MarkAsDone($betId)
+    {
+        $this->_betRepository->MarkAsDone($betId);
+    }
+
 }

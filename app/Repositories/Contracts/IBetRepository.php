@@ -2,6 +2,11 @@
 
 interface IBetRepository
 {
+
+    public function MarkAsDone($betId);
+
+    public function GetBetsOnGame($gameId);
+
     public function Get($id);
 
     public function GetUserIncomingBets($id, $days = 0);

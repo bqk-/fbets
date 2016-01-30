@@ -3,6 +3,10 @@
 interface IUserRepository
 {
 
+    public function RemovePoints($userId, $points);
+
+    public function AddPoints($userId, $points);
+
     public function GetUserFromRecoverToken($token);
 
     public function UpdatePassword($userId, $password);

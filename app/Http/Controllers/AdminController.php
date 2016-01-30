@@ -214,33 +214,10 @@ class AdminController extends Controller {
     {
         if(Input::has('id_champ') && Input::has('id_champ') > 0)
         {
-            $champ = $this->_championshipService->Get(Input::get('id_champ'));
-            $this->_adminService->UpdateChampionshipParams(Input::get('id_champ'), Input::get('param'));
-            
-            if($champ->active == 0)
-            {
-                $this->_adminService->ActivateChampionship(Input::get('id_champ'));
-            }
-            
-            $workingClass = $this->_adminService->GetWorkingClassForChampionship(Input::get('id_champ'));
+            $this->_adminService->UpdateChampionshipParams($championship->id, Input::get('param'));
 
-            $games = $workingClass->getGames();
-            $teams = $workingClass->getTeams();
-            $relations = array();
-            
-            foreach($teams as $team)
-            {
-                $relations[$team->Id] = $this->_teamService->SaveTeam($team,                              
-                        $champ->id, 
-                        $champ->id_sport);
-            }
-
-            foreach ($games as $game)
-            {
-                $this->_gameService->Create($game, $champ->id, $relations);
-            }
-
-            return Redirect::to('admin/')->with('success', count($games) . ' games added');
+            return Redirect::to('admin/')->with('success', 'Parameters changed, '
+                    . 'called worker to initialize.');
         }
 
         return Redirect::to('admin/')->with('error', 'No championship');

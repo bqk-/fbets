@@ -82,4 +82,17 @@ class BetRepository implements IBetRepository
 
         return $users;
     }
+
+    public function GetBetsOnGame($gameId)
+    {
+        return Bet::where('id_game', '=', $gameId)->get();
+    }
+
+    public function MarkAsDone($betId)
+    {
+        $bet = $this->Get($betId);
+        $bet->status = 1;
+        $bet->save();
+    }
+
 }

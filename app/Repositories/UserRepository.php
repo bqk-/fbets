@@ -105,5 +105,20 @@ class UserRepository implements IUserRepository
         $recover->delete();
         return $user;
     }
+
+    public function AddPoints($userId, $points)
+    {
+        $user = $this->GetUserById($userId);
+        $user->increment('points', $points);
+        $user->save();
+    }
+
+    public function RemovePoints($userId, $points)
+    {
+        $user = $this->GetUserById($userId);
+        $user->decrement('points', $points);
+        $user->save();
+    }
+
 }
 

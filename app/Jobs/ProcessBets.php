@@ -10,11 +10,13 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\AdminService;
 use App\Services\ChampionshipService;
 use App\Services\GameService;
+use App\Services\BetService;
+use App\Services\UserService;
 
 class ProcessBets extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
-
+    public $MAXPOINTS = 25;
     /**
      * @var App\Services\AdminService
      */
@@ -31,17 +33,31 @@ class ProcessBets extends Job implements ShouldQueue
     private $GameService;
     
     /**
+     * @var App\Services\BetService
+     */
+    private $BetService;
+    
+    /**
+     * @var App\Services\UserService
+     */
+    private $UserService;
+    
+    /**
      * Create a new job instance.
      *
      * @return void
      */
     public function __construct(AdminService $adminService,
         ChampionshipService $championshipService,
-        GameService $gameService)
+        GameService $gameService,
+        BetService $betService,
+        UserService $userService)
     {
         $this->AdminService = $adminService;
         $this->ChampionshipService = $championshipService;
         $this->GameService = $gameService;
+        $this->BetService = $betService;
+        $this->UserService = $userService;
     }
     
     /**
@@ -51,47 +67,59 @@ class ProcessBets extends Job implements ShouldQueue
      */
     public function handle($gameId)
     {
-        $winnerScore = $this->GameService->GetScore($id);
-
-        $bets = $game->bets();
-        $nb = 0;
-        foreach ($bets as $bet)
+        $game = $this->GameService->Get($gameId);
+        if($game == null)
         {
-            $points = 0;
-            if ($bet->score1 == $bet->score2)
-            {
-                $winnerBet = 0;
-            }
-            elseif ($bet->score1 > $bet->score2)
-            {
-                $winnerBet = 1;
-            }
-            else
-            {
-                $winnerBet = 2;
-            }
-
-            if ($winnerBet == $winnerScore)
-            {
-                $points += POINTS_OUTCOME;
-                $param['outcome'] = 1;
-                if ($bet->score1 == $score->team1 && $bet->score2 == $score->team2)
-                {
-                    $points += POINTS_BONUS;
-                }
-            }
-            else
-            {
-                $points -= POINTS_OUTCOME;
-            }
-
-            $bet->update($param);
-
-            $bet->user()->increment('points', $points);
-            $bet->save();
-            $nb++;
+            throw new \App\Exceptions\InvalidOperationException('Cannot find gane: ' . $gameId);
+        }
+        
+        $championship = $this->ChampionshipService->Get($game->id_champ);
+        if($championship == null)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Cannot find championship: ' . $game->id_champ);
+        }
+        
+        $score = $this->GameService->GetScore($gameId);
+        if($score == null)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Cannot find score associated to game: ' . $gameId);
+        }
+        
+        $rates = $this->GameService->GetRates($gameId);
+        
+        $bets = $this->BetService->GetAllBetsOnGame($gameId);
+        
+        if($bets->count() == 0)
+        {
+            return;
         }
 
-        return $nb;
+        $this->Process($championship, $bets, $score, $rates);
+    }
+    
+    private function Process($championship, $bets, $score, $rates)
+    {
+        $workingClass = $this->AdminService->GetWorkingClassForChampionship($championship->id);
+        $state = $workingClass->getGameStateFromScore($score->team1, $score->team2);
+        $ratesArray = array();
+        $ratesArray[\App\Models\Types\GameStates::HOME] = $rates->HomeRate;
+        $ratesArray[\App\Models\Types\GameStates::VISITOR] = $rates->VisitRate;
+        $ratesArray[\App\Models\Types\GameStates::DRAW] = $rates->DrawRate;
+        
+        foreach ($bets as $bet)
+        {
+            $stateBet = $bet->bet;
+            
+            if ($stateBet == $state)
+            {
+                $this->UserService->AddPoints($bet->user_id, $this->MAXPOINTS * $ratesArray[$stateBet]);
+            }
+            else
+            {
+                $this->UserService->RemovePoints($bet->user_id, $this->MAXPOINTS * $ratesArray[$stateBet]);
+            }
+            
+            $this->BetService->MarkAsDone($bet->id);
+        }
     }
 }

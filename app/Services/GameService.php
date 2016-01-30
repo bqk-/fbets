@@ -4,6 +4,7 @@ use App\Repositories\Contracts\IGameRepository;
 use App\Repositories\Contracts\IScoreRepository;
 use App\Repositories\Contracts\ISportRepository;
 use App\Repositories\Contracts\ITeamRepository;
+use App\Repositories\Contracts\IBetRepository;
 use Exception;
 
 /**
@@ -20,9 +21,11 @@ class GameService
     private $_sportRepository;
     private $CurrentUser;
     private $_teamRepository;
+    private $_betRepository;
 
     public function __construct(IGameRepository $gameRepository, 
             IScoreRepository $scoreRepository,
+            IBetRepository $betRepository,
             ISportRepository $sportRespository,
             ITeamRepository $teamRepository,
             \App\Services\Contracts\ICurrentUser $currentUser)
@@ -32,6 +35,7 @@ class GameService
         $this->_sportRepository = $sportRespository;
         $this->_teamRepository = $teamRepository;
         $this->CurrentUser = $currentUser;
+        $this->_betRepository = $betRepository;
     }
 
     public function Get($id)
@@ -132,5 +136,91 @@ class GameService
     public function GetGamesWithNoScore($champId)
     {
         return $this->_gameRepository->GetGamesWithNoScore($champId);
+    }
+
+    /**
+    * @return \App\Models\Services\BetRates
+    */
+    public function GetRates($gameId)
+    {
+        $percent = $this->GetPercent($gameId);
+        if($percent->HomeRate > 0.8)
+        {
+            $percent->VisitRate += ($percent->HomeRate - 0.8) / 2;
+            $percent->DrawRate += ($percent->HomeRate - 0.8) / 2;
+        }
+        
+        if($percent->VisitRate > 0.8)
+        {
+            $percent->HomeRate += ($percent->VisitRate - 0.8) / 2;
+            $percent->DrawRate += ($percent->VisitRate - 0.8) / 2;
+        }
+        
+        if($percent->DrawRate > 0.8)
+        {
+            $percent->VisitRate += ($percent->DrawRate - 0.8) / 2;
+            $percent->HomeRate += ($percent->DrawRate - 0.8) / 2;
+        }
+
+        if($percent->HomeRate < 0.1)
+        {
+            $percent->VisitRate -= (0.1 - $percent->HomeRate) / 2;
+            $percent->DrawRate -= (0.1 - $percent->HomeRate) / 2;
+        }
+        
+        if($percent->VisitRate < 0.1)
+        {
+            $percent->HomeRate -= (0.1 - $percent->VisitRate) / 2;
+            $percent->DrawRate -= (0.1 - $percent->VisitRate) / 2;
+        }
+        
+        if($percent->DrawRate < 0.1)
+        {
+            $percent->VisitRate -= (0.1 - $percent->DrawRate) / 2;
+            $percent->HomeRate -= (0.1 - $percent->DrawRate) / 2;
+        }
+        
+        return $percent;
+    }
+    
+    /**
+    * @return \App\Models\Services\BetRates
+    */
+    public function GetPercent($gameId)
+    {
+        $bets = $this->_betRepository->GetBetsOnGame($gameId);
+        $total = 0;
+        $home = 0;
+        $visit = 0;
+        $draw = 0;
+        
+        if($bets->count() == 0)
+        {
+            return new \App\Models\Services\BetRates($gameId, 0.33, 0.33, 0.33);
+        }
+        
+        foreach ($bets as $bet)
+        {
+            if($bet->state == \App\Models\Types\GameStates::HOME)
+            {
+                $home++;
+            }
+            else if($bet->state == \App\Models\Types\GameStates::VISITOR)
+            {
+                $visit++;
+            }
+            else if($bet->state == \App\Models\Types\GameStates::DRAW)
+            {
+                $draw++;
+            }
+            else
+            {
+                throw new \App\Exceptions\InvalidOperationException('What the fuck is this bet');
+            }
+            
+            $total++;
+        }
+        
+        return new \App\Models\Services\BetRates($gameId, $home/$total, $visit/$total, $draw/$total);
     }
 }

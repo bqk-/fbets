@@ -215,4 +215,14 @@ class UserService
         return $this->UserRepository->GetUserByPseudo($name) !== null;          
     }
 
+    public function AddPoints($userId, $points)
+    {
+        $this->UserRepository->AddPoints($userId, $points);
+    }
+
+    public function RemovePoints($userId, $points)
+    {
+        $this->UserRepository->RemovePoints($userId, $points);
+    }
+
 }
