@@ -80,13 +80,15 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
                 'App\Repositories\Contracts\IUserRepository',
                 'Mock\MockUserRepository'
             );
+            /*
             $this->app->bind(
                 'App\Services\Contracts\ICurrentUser',
                 'App\Models\Services\CurrentUser'
             );
+             * */
     }
     
-    public function LogUser($id, $name)
+    public function LogUser()
     {
         $this->app->bind(
             'App\Services\Contracts\ICurrentUser',

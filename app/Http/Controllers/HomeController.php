@@ -64,15 +64,20 @@ class HomeController extends Controller {
         {
             $bets = $this->_betService->GetUserPendingBets();
 
-            foreach (Input::get('games') as $id => $score) if($score['team1']!==''&&$score['team2']!=='') {
-                $g = $this->_gameService->Get($id);
-                 if(DateHelper::getTimestampFromSqlDate($g->date) < time() || array_key_exists($g->id, $bets) ||
-                     DateHelper::getTimestampFromSqlDate($g->date) > time() + (60*60*24*7))
-                    continue;
-
-                $this->_betService->Create($id, abs($score['team1']), abs($score['team2']));
+            foreach (Input::get('games') as $id => $score) 
+            {
+                if($score['state']!=='') 
+                {
+                    $g = $this->_gameService->Get($id);
+                    if(DateHelper::getTimestampFromSqlDate($g->date) < time() || array_key_exists($g->id, $bets) ||
+                        DateHelper::getTimestampFromSqlDate($g->date) > time() + (60*60*24*7))
+                   {
+                       continue;   
+                   }
+                }
             }
 
+            $this->_betService->Create($id, $score['state']);
             return Redirect::to('/')->with('success',trans('general.betstaken'));
         }
 

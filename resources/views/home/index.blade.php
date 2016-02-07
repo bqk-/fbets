@@ -32,15 +32,8 @@
                               <input type="text"
                                      min="0"
                                      class="text-center"
-                                     name="games[{{$game->id}}][team1]"
-                                     id="games[{{$game->id}}][team1]" />
-                                -
-                                <input
-                                        type="text"
-                                        min="0"
-                                        class="text-center"
-                                        name="games[{{$game->id}}][team2]"
-                                        id="games[{{$game->id}}][team2]" />
+                                     name="games[{{$game->id}}][state]"
+                                     id="games[{{$game->id}}][state]" />
 
                             </small>
                           <?php $needBtn = true; ?>
@@ -48,8 +41,8 @@
                             <small>{{ trans('general.noresultindex') }}</small><br />
                           @endif
                           @if(array_key_exists($game->id, $bets))
-                            <small class="text-muted">{{ trans('general.yourbet') }}: {{$bets[$game->id]->score1}} -
-                                {{$bets[$game->id]->score2}}
+                            <small class="text-muted">{{ trans('general.yourbet') }}:
+                                {{ $bets[$game->id]->state }}
                             </small>
                           @endif
                         </p>

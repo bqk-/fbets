@@ -1,15 +1,19 @@
 <?php namespace Mock;
 
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+use App\Models\Data\Bet;
 
 class MockBetRepository implements \App\Repositories\Contracts\IBetRepository
 {
-    public function Create($score1, $score2, $idGame, $userId) {
-        
+    private $bets = array();
+    
+    public function Create($state, $idGame, $userId) {
+        $bet = new Bet;
+        $bet->id_game = $idGame;
+        $bet->id_user = $userId;
+        $bet->bet = $state;
+        $bet->state = \App\Models\Types\BetStates::WAITING;
+
+        $this->bets[] = $bet;
     }
 
     public function Get($id) {
@@ -25,6 +29,16 @@ class MockBetRepository implements \App\Repositories\Contracts\IBetRepository
     }
 
     public function GetUserIncomingBets($id, $days = 0) {
+        
+    }
+
+    public function GetBetsToProcessOnGame($gameId)
+    {
+        return new \Illuminate\Database\Eloquent\Collection($this->bets);
+    }
+
+    public function MarkAsDone($betId, $state)
+    {
         
     }
 

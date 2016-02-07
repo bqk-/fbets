@@ -13,10 +13,8 @@ use \Auth;
 use App\Models\Data\Suggestion;
 use \View;
 use \Redirect;
-use \Artisan;
 use \Input;
 use \Validator;
-use \Session;
 
 class AdminController extends Controller {
     public static $admins = array(1,2);
@@ -212,10 +210,11 @@ class AdminController extends Controller {
 
     public function postSaveChamp()
     {
-        if(Input::has('id_champ') && Input::has('id_champ') > 0)
+        if(Input::has('id_champ') && Input::get('id_champ') > 0)
         {
-            $this->_adminService->UpdateChampionshipParams($championship->id, Input::get('param'));
-
+            $this->_adminService->UpdateChampionshipParams(Input::get('id_champ'), Input::get('param'));
+            $this->dispatch(new \App\Jobs\UpdateChampionship(Input::get('id_champ')));
+            
             return Redirect::to('admin/')->with('success', 'Parameters changed, '
                     . 'called worker to initialize.');
         }
@@ -260,17 +259,20 @@ class AdminController extends Controller {
             'message' => 'Required'
         )
         );
-        if($validator->passes())
-        { 
+        if ($validator->passes())
+        {
             $input = Input::all();
-            Mail::send('emails/newsletter', array('msg'=>$input['message']), function($message) use ($input)
+            Mail::send('emails/newsletter', array('msg' => $input['message']),
+                       function($message) use ($input)
             {
                 $message->to($input['email'])->subject($input['subject']);
             });
             return Redirect::to('admin/mailsender')->with(array('success' => 'Mail envoyé !'));
         }
         else
+        {
             return Redirect::to('admin/mailsender')->with(array('error' => 'Corrige les erreurs !'))->withErrors($validator);
+        }
     }
 
     public function getMailsender(){

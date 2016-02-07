@@ -48,5 +48,10 @@ class MockChampionshipRepository implements \App\Repositories\Contracts\IChampio
         
     }
 
+    public function HasGames($champId)
+    {
+        
+    }
+
 }
 

@@ -36,4 +36,14 @@ class MockGameRepository implements \App\Repositories\Contracts\IGameRepository
         
     }
 
+    public function Create($teamh, $teamv, $champId, $date)
+    {
+        
+    }
+
+    public function CreateRelation($outId, $localId)
+    {
+        
+    }
+
 }

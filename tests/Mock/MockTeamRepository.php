@@ -32,4 +32,9 @@ class MockTeamRepository implements \App\Repositories\Contracts\ITeamRepository
         
     }
 
+    public function GetRelation($idExt, $idChamp)
+    {
+        
+    }
+
 }

@@ -32,6 +32,7 @@ class UserRepository implements IUserRepository
         $user->email    = $email;
         $user->display    = $display;
         $user->password = Hash::make($pass);
+        $user->points = 1000;
         $user->save();
         
         return $user->id;

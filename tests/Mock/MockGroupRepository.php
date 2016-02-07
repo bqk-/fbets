@@ -56,4 +56,14 @@ class MockGroupRepository implements \App\Repositories\Contracts\IGroupRepositor
         return null;
     }
 
+    public function GetBetsForGroupAndGame($idgroup, $idgame)
+    {
+        
+    }
+
+    public function GetGroupGames($id, $days)
+    {
+        
+    }
+
 }

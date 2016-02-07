@@ -12,7 +12,7 @@
  */
 class BetRates
 {
-    private $GameId,
+    public $GameId,
             $HomeRate,
             $VisitRate,
             $DrawRate;

@@ -85,9 +85,9 @@ class ProcessBets extends Job implements ShouldQueue
             throw new \App\Exceptions\InvalidOperationException('Cannot find score associated to game: ' . $gameId);
         }
         
-        $rates = $this->GameService->GetRates($gameId);
+        $rates = $this->BetService->GetRates($gameId);
         
-        $bets = $this->BetService->GetAllBetsOnGame($gameId);
+        $bets = $this->BetService->GetBetsToProcessOnGame($gameId);
         
         if($bets->count() == 0)
         {
@@ -113,13 +113,13 @@ class ProcessBets extends Job implements ShouldQueue
             if ($stateBet == $state)
             {
                 $this->UserService->AddPoints($bet->user_id, $this->MAXPOINTS * $ratesArray[$stateBet]);
+                $this->BetService->MarkAsDone($bet->id, \App\Models\Types\BetStates::WIN);
             }
             else
             {
                 $this->UserService->RemovePoints($bet->user_id, $this->MAXPOINTS * $ratesArray[$stateBet]);
-            }
-            
-            $this->BetService->MarkAsDone($bet->id);
+                $this->BetService->MarkAsDone($bet->id, \App\Models\Types\BetStates::LOOSE);
+            }    
         }
     }
 }

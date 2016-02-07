@@ -33,13 +33,13 @@ class BetRepository implements IBetRepository
         return $baseQ->get();
     }
 
-    public function Create($score1, $score2, $idGame, $userId)
+    public function Create($ubet, $idGame, $userId)
     {
         $bet = new Bet;
         $bet->id_game = $idGame;
         $bet->id_user = $userId;
-        $bet->score1 = $score1;
-        $bet->score2 = $score2;
+        $bet->bet = $ubet;
+        $bet->state = \App\Models\Types\BetStates::WAITING;
         $bet->save();
 
         return $bet->id;
@@ -83,15 +83,17 @@ class BetRepository implements IBetRepository
         return $users;
     }
 
-    public function GetBetsOnGame($gameId)
+    public function GetBetsToProcessOnGame($gameId)
     {
-        return Bet::where('id_game', '=', $gameId)->get();
+        return Bet::where('id_game', '=', $gameId)
+                ->where('state', '=', \App\Models\Types\BetStates::WAITING)
+                ->get();
     }
 
-    public function MarkAsDone($betId)
+    public function MarkAsDone($betId, $state)
     {
         $bet = $this->Get($betId);
-        $bet->status = 1;
+        $bet->state = $state;
         $bet->save();
     }
 

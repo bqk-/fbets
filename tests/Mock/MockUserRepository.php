@@ -61,4 +61,14 @@ class MockUserRepository implements \App\Repositories\Contracts\IUserRepository
         return null;
     }
 
+    public function AddPoints($userId, $points)
+    {
+        
+    }
+
+    public function RemovePoints($userId, $points)
+    {
+        
+    }
+
 }
