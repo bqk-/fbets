@@ -88,7 +88,7 @@
       </div>
     @else
     <div id="Welcome" class="col-md-offset-2 col-md-8">
-      <h1>{{ trans('general.hometitle') }}</h1>
+      <h1 class="herotitle">{{ trans('general.brandtitle') }}</h1>
       <p>{{ trans('general.homemessage') }}</p>
       
       <div class="col-md-4 registerHome">
