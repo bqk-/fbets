@@ -44,55 +44,47 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
         require_once __DIR__ . '/Mock/MockUser.php';
         
         $this->baseUrl = 'http://homestead.app';
-        $this->app->bind(
+        $this->app->singleton(
                 'App\Repositories\Contracts\IChampionshipRepository', 
                 'Mock\MockChampionshipRepository'
             );
-            $this->app->bind(
+            $this->app->singleton(
                 'App\Repositories\Contracts\IBetRepository',
                 'Mock\MockBetRepository'
             );
-            $this->app->bind(
+            $this->app->singleton(
                 'App\Repositories\Contracts\IGameRepository',
                 'Mock\MockGameRepository'
             );
-            $this->app->bind(
+            $this->app->singleton(
                 'App\Repositories\Contracts\IGroupRepository',
                 'Mock\MockGroupRepository'
             );
-            $this->app->bind(
+            $this->app->singleton(
                 'App\Repositories\Contracts\IPollRepository',
                 'Mock\MockPollRepository'
             );
-            $this->app->bind(
+            $this->app->singleton(
                 'App\Repositories\Contracts\IScoreRepository',
                 'Mock\MockScoreRepository'
             );
-            $this->app->bind(
+            $this->app->singleton(
                 'App\Repositories\Contracts\ISportRepository',
                 'Mock\MockSportRepository'
             );
-            $this->app->bind(
+            $this->app->singleton(
                 'App\Repositories\Contracts\ITeamRepository',
                 'Mock\MockTeamRepository'
             );
-            $this->app->bind(
+            $this->app->singleton(
                 'App\Repositories\Contracts\IUserRepository',
                 'Mock\MockUserRepository'
             );
-            /*
-            $this->app->bind(
+            
+            $this->app->singleton(
                 'App\Services\Contracts\ICurrentUser',
-                'App\Models\Services\CurrentUser'
+                'Mock\MockUser'
             );
-             * */
-    }
-    
-    public function LogUser()
-    {
-        $this->app->bind(
-            'App\Services\Contracts\ICurrentUser',
-            'Mock\MockUser'
-        );
+            
     }
 }

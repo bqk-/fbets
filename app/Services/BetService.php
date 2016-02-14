@@ -13,6 +13,17 @@ class BetService
         $this->_betRepository = $betRepository;
         $this->_currentUser = $currentUser;
     }
+    
+    public function Get($id)
+    {
+        $b = $this->_betRepository->Get($id);
+        if($b == null)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Cannot get bet: ' . $id);
+        }
+        
+        return $b;
+    }
 
     public function GetCurrentUserBetsForNext7Days()
     {

@@ -9,8 +9,6 @@ class RatesTest extends TestCase
      */
     public function testRates1Bet()
     {
-        $this->LogUser(1, 'TestMan');
-        
         $svc = $this->app->make('App\Services\BetService');
         $svc->Create(1, App\Models\Types\GameStates::DRAW);
         
@@ -33,8 +31,6 @@ class RatesTest extends TestCase
     
     public function testRates2Bets()
     {
-        $this->LogUser(1, 'TestMan');
-        
         $svc = $this->app->make('App\Services\BetService');
         $svc->Create(1, App\Models\Types\GameStates::DRAW);
         $svc->Create(1, App\Models\Types\GameStates::DRAW);
@@ -59,8 +55,6 @@ class RatesTest extends TestCase
     
     public function testRates9Bets()
     {
-        $this->LogUser(1, 'TestMan');
-        
         $svc = $this->app->make('App\Services\BetService');
         $svc->Create(1, App\Models\Types\GameStates::DRAW);
         $svc->Create(1, App\Models\Types\GameStates::DRAW);
@@ -92,8 +86,6 @@ class RatesTest extends TestCase
     
     public function testRates10Bets()
     {
-        $this->LogUser(1, 'TestMan');
-        
         $svc = $this->app->make('App\Services\BetService');
         $svc->Create(1, App\Models\Types\GameStates::HOME);
         $svc->Create(1, App\Models\Types\GameStates::DRAW);

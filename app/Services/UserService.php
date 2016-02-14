@@ -17,11 +17,12 @@ class UserService
             Contracts\ICurrentUser $user, 
             IUserRepository $userRepository)
     {
-        if($user->GetId() > 0)
+        if($user->GetId() == 0)
         {
-            $this->CurrentUser = $user;
+            throw new \App\Exceptions\InvalidArgumentException('user', null);
         }
-
+        
+        $this->CurrentUser = $user;
         $this->UserRepository = $userRepository;
     }
 

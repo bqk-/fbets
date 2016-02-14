@@ -7,7 +7,7 @@ class HomeTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function rootAvailable()
+	public function testRootAvailable()
 	{
 		$response = $this->call('GET', '/');
 

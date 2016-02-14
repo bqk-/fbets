@@ -4,8 +4,6 @@ use App\Exceptions\InvalidArgumentException;
 use App\Exceptions\MissingArgumentException;
 use App\Exceptions\OutOfRangeException;
 use App\Repositories\Contracts\IChampionshipRepository;
-use Illuminate\Contracts\Validation\UnauthorizedException;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Created by PhpStorm.
@@ -35,11 +33,6 @@ class ChampionshipService
 
     public function Create($name, $class, $sport)
     {
-        if(!Auth::check())
-        {
-            throw new UnauthorizedException('Cannot create championship without being logged');
-        }
-
         if(empty($name))
         {
             throw new MissingArgumentException('name');
