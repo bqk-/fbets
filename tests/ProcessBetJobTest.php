@@ -55,8 +55,8 @@ class ProcessBetJobTest extends TestCase {
         $this->assertEquals(App\Models\Types\BetStates::LOOSE, $betsService->Get($bet3)->state);
         $this->assertEquals(App\Models\Types\BetStates::LOOSE, $betsService->Get($bet4)->state);
         
-        $this->assertEquals($userService->GetUserById(2)->points, 1000);
-        $this->assertEquals($userService->GetUserById(3)->points, 1000);
-        $this->assertEquals($userService->GetUserById(4)->points, 1000);
+        $this->assertEquals($userService->GetUserById(2)->points, 1009);
+        $this->assertEquals($userService->GetUserById(3)->points, 991);
+        $this->assertEquals($userService->GetUserById(4)->points, 991);
 	}
 }

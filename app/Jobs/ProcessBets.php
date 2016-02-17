@@ -112,12 +112,12 @@ class ProcessBets extends Job implements ShouldQueue
             
             if ($stateBet == $state)
             {
-                $this->UserService->AddPoints($bet->user_id, $this->MAXPOINTS * $ratesArray[$stateBet]);
+                $this->UserService->AddPoints($bet->id_user, ceil($this->MAXPOINTS * $ratesArray[$stateBet]));
                 $this->BetService->MarkAsDone($bet->id, \App\Models\Types\BetStates::WIN);
             }
             else
             {
-                $this->UserService->RemovePoints($bet->user_id, $this->MAXPOINTS * $ratesArray[$stateBet]);
+                $this->UserService->RemovePoints($bet->id_user, ceil($this->MAXPOINTS * $ratesArray[$stateBet]));
                 $this->BetService->MarkAsDone($bet->id, \App\Models\Types\BetStates::LOOSE);
             }    
         }

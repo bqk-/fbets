@@ -92,7 +92,9 @@ class MockUserRepository implements \App\Repositories\Contracts\IUserRepository
 
     public function RemovePoints($userId, $points)
     {
-        
+        if(key_exists($userId, $this->users)){
+            $this->users[$userId]->points -= $points;
+        }
     }
 
 }
