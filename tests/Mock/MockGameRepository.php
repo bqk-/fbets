@@ -58,5 +58,9 @@ class MockGameRepository implements \App\Repositories\Contracts\IGameRepository
     {
         
     }
-
+    
+    public function GetAllGames($idChamp)
+    {
+        return new \Illuminate\Database\Eloquent\Collection($this->games);
+    }
 }

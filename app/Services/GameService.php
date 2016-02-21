@@ -137,4 +137,9 @@ class GameService
     {
         return $this->_gameRepository->GetGamesWithNoScore($champId);
     }
+    
+    public function GetAllGames($idChamp)
+    {
+        return $this->_gameRepository->GetAllGames($idChamp);
+    }
 }

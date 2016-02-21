@@ -62,9 +62,9 @@ class Lequipe_Rugby implements iTournament {
                     
                     $sqltime = $datecomplete[3].'-'.sprintf('%02d',array_search($datecomplete[2], $mo)).'-'.sprintf('%02d',$datecomplete[1]).' '.$heure[1].':'.$heure[2].':00';
 
-                    preg_match('#idClub1="([0-9]+)" idClub2="([0-9]+)" idmatch="([0-9]+)"#', 
+                    preg_match('#idClub1="([0-9]+)" idClub2="([0-9]+)"  idmatch="([0-9]+)"#', 
                             html_entity_decode($match, ENT_COMPAT, 'ISO-8859-1'), $ids);
-                    
+
                     preg_match('#<a class="disabled">([0-9]+)h([0-9]+)</a>#', $match, $heure);
                     
                     if(empty($heure))
@@ -115,7 +115,7 @@ class Lequipe_Rugby implements iTournament {
 
     function getScore($gameId)
     {
-        if(!empty($this->games[$gameId]))
+        if(key_exists($gameId, $this->games))
         {
             return $this->games[$gameId]->Score;
         }
@@ -125,7 +125,7 @@ class Lequipe_Rugby implements iTournament {
 
     function getGameTime($idExtGame)
     {
-        if(!empty($this->games[$idExtGame]))
+        if(key_exists($idExtGame, $this->games))
         {
             return $this->games[$idExtGame]->Date;
         }

@@ -87,9 +87,14 @@ class UpdateChampionship extends Job implements ShouldQueue
             }
 
             $score = $workingClass->getScore($game->team1, $game->team2);
+            if($score == null)
+            {
+                continue;
+            }
+            
             $state = $workingClass->getGameStateFromScore($score->TeamHome, $score->TeamVisit);
             
-            if($score && $state)
+            if($state)
             {
                 $this->GameService->AddScore($game->id, 
                         $score->TeamHome, 
@@ -116,11 +121,15 @@ class UpdateChampionship extends Job implements ShouldQueue
 
         foreach ($games as $game)
         {
-            $this->_gameService->Create($game, $championship->id, $relations);
-            $score = $workingClass->getScore($game->team1, $game->team2);
-            $state = $workingClass->getGameStateFromScore($score->TeamHome, $score->TeamVisit);
+            $this->GameService->Create($game, $championship->id, $relations);
+            $score = $workingClass->getScore($game->Id);
+            if($score == null)
+            {
+                continue;
+            }
             
-            if($score && $state)
+            $state = $workingClass->getGameStateFromScore($score->TeamHome, $score->TeamVisit);
+            if($state)
             {
                 $this->GameService->AddScore($game->id, 
                         $score->TeamHome, 

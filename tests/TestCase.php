@@ -42,6 +42,7 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
         require_once __DIR__ . '/Mock/MockTeamRepository.php';
         require_once __DIR__ . '/Mock/MockUserRepository.php';
         require_once __DIR__ . '/Mock/MockUser.php';
+        require_once __DIR__ . '/Mock/MockImageService.php';
         
         $this->baseUrl = 'http://homestead.app';
         $this->app->singleton(
@@ -80,7 +81,10 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
                 'App\Repositories\Contracts\IUserRepository',
                 'Mock\MockUserRepository'
             );
-            
+            $this->app->singleton(
+                'App\Services\Contracts\IImageService',
+                'Mock\MockImageService'
+            );
             $this->app->singleton(
                 'App\Services\Contracts\ICurrentUser',
                 'Mock\MockUser'

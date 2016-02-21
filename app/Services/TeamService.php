@@ -1,7 +1,6 @@
 <?php namespace App\Services;
 
-use App\Models\Data\Team;
-use App\Models\Data\TeamRelation;
+use App\Services\Contracts\IImageService;
 
 class TeamService {
 
@@ -9,7 +8,7 @@ class TeamService {
     private $_teamRepository;
 
     public function __construct(\App\Repositories\Contracts\ITeamRepository $teamRepository, 
-            ImageService $imageService)
+            IImageService $imageService)
     {
         $this->_imageService = $imageService;
         $this->_teamRepository = $teamRepository;

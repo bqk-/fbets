@@ -6,7 +6,7 @@ use App\Exceptions\OutOfRangeException;
 use App\Services\AdminService;
 use App\Services\ChampionshipService;
 use App\Services\GameService;
-use App\Services\ImageService;
+use App\Services\Contracts\IImageService;
 use App\Services\SportService;
 use App\Services\TeamService;
 use \Auth;
@@ -43,7 +43,7 @@ class AdminController extends Controller {
     private $_teamService;
     private $_sportService;
 
-    public function __construct(AdminService $adminService, ImageService $imageService, GameService $gameService,
+    public function __construct(AdminService $adminService, IImageService $imageService, GameService $gameService,
                                     ChampionshipService $championshipService, TeamService $teamService, SportService
         $sportService)
     {

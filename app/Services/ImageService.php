@@ -1,7 +1,7 @@
 <?php namespace App\Services;
 
 use App\Models\Data\Image;
-use App\Models\Data\Game;
+use App\Services\Contracts\IImageService;
 
 /**
  * Created by PhpStorm.
@@ -10,7 +10,7 @@ use App\Models\Data\Game;
  * Time: 12:28
  */
 
-class ImageService
+class ImageService implements IImageService
 {
     private $uploadPath;
     private $storagePath;

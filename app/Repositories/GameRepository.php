@@ -109,4 +109,9 @@ class GameRepository implements IGameRepository
         return $r->id;
     }
 
+    public function GetAllGames($idChamp)
+    {
+        return Game::where('id_championship', '=', $idChamp)->get();
+    }
+
 }

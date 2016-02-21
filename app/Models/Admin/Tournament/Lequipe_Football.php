@@ -112,7 +112,7 @@ class Lequipe_Football implements iTournament {
 
     function getScore($gameId)
     {
-        if(!empty($this->games[$gameId]))
+        if(key_exists($gameId, $this->games))
         {
             return $this->games[$gameId]->Score;
         }
@@ -122,7 +122,7 @@ class Lequipe_Football implements iTournament {
 
     function getGameTime($idExtGame)
     {
-        if(!empty($this->games[$idExtGame]))
+        if(key_exists($idExtGame, $this->games))
         {
             return $this->games[$idExtGame]->Date;
         }
