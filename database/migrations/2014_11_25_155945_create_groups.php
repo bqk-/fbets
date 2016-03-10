@@ -19,6 +19,7 @@ class CreateGroups extends Migration {
             $table->string('description');
             $table->integer('money');
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('groups_users', function($table)
@@ -39,6 +40,7 @@ class CreateGroups extends Migration {
             $table->integer('id_group');
             $table->integer('id_user');
             $table->integer('type');
+            $table->integer('id_poll');
             $table->timestamp('date');
         });
 
@@ -49,6 +51,8 @@ class CreateGroups extends Migration {
             $table->integer('id_user');
             $table->integer('from');
             $table->string('message');
+            $table->integer('id_poll');
+            $table->softDeletes();
             $table->timestamps();
         });
 
@@ -58,6 +62,7 @@ class CreateGroups extends Migration {
             $table->integer('id_group');
             $table->integer('id_user');
             $table->string('message');
+            $table->softDeletes();
             $table->timestamps();
         });
 
@@ -67,6 +72,7 @@ class CreateGroups extends Migration {
             $table->integer('id_group');
             $table->integer('id_user');
             $table->integer('id_game');
+            $table->softDeletes();
             $table->timestamps();
         });
 
@@ -74,7 +80,7 @@ class CreateGroups extends Migration {
         {
             $table->integer('id_poll');
             $table->integer('id_user');
-            $table->boolean('opinion');
+            $table->integer('opinion');
             $table->timestamps();
         });
 	}

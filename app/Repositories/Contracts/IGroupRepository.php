@@ -3,6 +3,8 @@
 interface IGroupRepository
 {
 
+    public function IsInGroup($iduser, $idgroup);
+
     public function GetBetsForGroupAndGame($idgroup, $idgame);
 
     public function GetGroupGames($id, $days);
@@ -21,11 +23,9 @@ interface IGroupRepository
     
     public function DeleteApplication($user, $group);
     
-    public function CreateNotification($iduser, $idgroup, $type);
+    public function CreateNotification($iduser, $idgroup, $type, $poll);
     
     public function CreateApplication($iduser, $idgroup, $from, $message);
-    
-    public function CreateApplicationPoll($application, $iduser, $idgroup);
     
     public function GetNotifications($idgroup, $limit = 20);
     

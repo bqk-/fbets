@@ -40,8 +40,6 @@ Route::get('/view/{type?}/{id?}', function($type = null, $id = null)
     }
 });
 
-//Route::match('*', 'csrf', array('post'));
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -56,12 +54,14 @@ Route::get('/view/{type?}/{id?}', function($type = null, $id = null)
 Route::group(['middleware' => ['web']], function () {
     Route::controller('ajax', 'App\Http\Controllers\AjaxController');
 
-    Route::controller('group', 'App\Http\Controllers\GroupController');
-
     Route::controller('javascript', 'App\Http\Controllers\JavascriptController');
 
     Route::group(['middleware' => ['admin']], function () {
         Route::controller('admin', 'App\Http\Controllers\AdminController');
+    });
+    
+    Route::group(['middleware' => ['auth']], function () {
+        Route::controller('group', 'App\Http\Controllers\GroupController');
     });
 
     //What's left

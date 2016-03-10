@@ -42,12 +42,11 @@ class ProcessBetJobTest extends TestCase {
         $user->LogUser(4);
         $bet4 = $betsService->Create($game, App\Models\Types\GameStates::HOME);
         
-		$svc = new \App\Jobs\ProcessBets(
-                $adminService, 
+		$svc = new \App\Jobs\ProcessBets($game);
+        
+        $svc->handle($adminService, 
                  $championshipService, $gameService, $betsService, 
                 $userService);
-        
-        $svc->handle($game);
         
         $this->assertEquals(0, $betsService->GetBetsToProcessOnGame($game)->count());
         

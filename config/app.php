@@ -134,6 +134,7 @@ return [
 		'Illuminate\Validation\ValidationServiceProvider',
 		'Illuminate\View\ViewServiceProvider',
 		'Collective\Html\HtmlServiceProvider',
+        'Illuminate\Bus\BusServiceProvider',
 
 		/*
 		 * Application Service Providers...

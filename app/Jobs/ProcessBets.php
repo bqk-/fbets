@@ -47,7 +47,20 @@ class ProcessBets extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(AdminService $adminService,
+    
+    private $GameId;
+    
+    public function __construct($gameId)
+    {
+        $this->GameId = $gameId;
+    }
+    
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle(AdminService $adminService,
         ChampionshipService $championshipService,
         GameService $gameService,
         BetService $betService,
@@ -58,19 +71,11 @@ class ProcessBets extends Job implements ShouldQueue
         $this->GameService = $gameService;
         $this->BetService = $betService;
         $this->UserService = $userService;
-    }
-    
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
-    public function handle($gameId)
-    {
-        $game = $this->GameService->Get($gameId);
+        
+        $game = $this->GameService->Get($this->GameId);
         if($game == null)
         {
-            throw new \App\Exceptions\InvalidOperationException('Cannot find gane: ' . $gameId);
+            throw new \App\Exceptions\InvalidOperationException('Cannot find gane: ' . $this->GameId);
         }
         
         $championship = $this->ChampionshipService->Get($game->id_champ);
@@ -79,15 +84,15 @@ class ProcessBets extends Job implements ShouldQueue
             throw new \App\Exceptions\InvalidOperationException('Cannot find championship: ' . $game->id_champ);
         }
         
-        $score = $this->GameService->GetScore($gameId);
+        $score = $this->GameService->GetScore($this->GameId);
         if($score == null)
         {
-            throw new \App\Exceptions\InvalidOperationException('Cannot find score associated to game: ' . $gameId);
+            throw new \App\Exceptions\InvalidOperationException('Cannot find score associated to game: ' . $this->GameId);
         }
         
-        $rates = $this->BetService->GetRates($gameId);
+        $rates = $this->BetService->GetRates($this->GameId);
         
-        $bets = $this->BetService->GetBetsToProcessOnGame($gameId);
+        $bets = $this->BetService->GetBetsToProcessOnGame($this->GameId);
         
         if($bets->count() == 0)
         {

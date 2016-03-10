@@ -1,20 +1,30 @@
 <?php namespace App\Services;
 
 use App\Repositories\Contracts\IGroupRepository;
+use App\Repositories\Contracts\IPollRepository;
+use App\Services\Contracts\ICurrentUser;
 use App\Exceptions\InvalidArgumentException;
-use \Auth;
+use \Validator;
 use Exception;
+use App\Models\Types\NotificationTypes;
 
 class GroupService
 {
     private $_groupRepository;
-    
-    public function __construct(IGroupRepository $groupRepository)
+    private $_currentUser;
+    private $_pollRepository;
+
+    public function __construct(IGroupRepository $groupRepository,
+            ICurrentUser $currentUser,
+            IPollRepository $pollRepository)
     {
         $this->_groupRepository = $groupRepository;
+        $this->_currentUser = $currentUser;
+        $this->_pollRepository = $pollRepository;
     }
 
-    public function CreateGroup($name, $description){
+    public function CreateGroup($name, $description)
+    {
         if(empty($name))
         {
             throw new InvalidArgumentException("name", null);
@@ -25,26 +35,47 @@ class GroupService
             throw new InvalidArgumentException("description", null);
         }
         
-        $this->_groupRepository->CreateGroup($name, $description);
-
-        $this->JoinGroup($g->id);
-        $this->GroupNotification(Auth::user()->id, $g->id, JOIN);
+        $validator = Validator::make(
+                array(
+                    'name' => $name,
+                    'description' => $description
+                ), 
+                array(
+                    'name' => 'required|max:30',
+                    'description' => 'required|max:255'
+                ));
         
-        return $g->id;
+        if($validator->passes())
+        {
+            if($this->_groupRepository->GetByName($name) == null)
+            {
+                $id = $this->_groupRepository->CreateGroup($name, $description);
+
+                $this->JoinGroup($id);
+
+                return $id;
+            }
+            else
+            {
+                throw new \App\Exceptions\InvalidOperationException('group name is not unique');
+            }
+        }
+        else
+        {
+            throw new \App\Exceptions\InvalidOperationException($validator->messages());
+        }
     }
 
     private function JoinGroup($idgroup)
     {
-        $this->_groupRepository->PutUserInGroup(Auth::user()->id, $idgroup);
-
-        $this->GroupNotification(Auth::user()->id, $idgroup, JOIN);
+        $this->AddUserToGroup($this->_currentUser->GetId(), $idgroup);
     }
     
-    private function AddUserToGroup($iduser, $idgroup)
+    public function AddUserToGroup($iduser, $idgroup)
     {
         $this->_groupRepository->PutUserInGroup($iduser, $idgroup);
 
-        $this->GroupNotification($iduser, $idgroup, JOIN);
+        $this->GroupNotification($iduser, $idgroup, NotificationTypes::JOIN, 0);
     }
 
     public function QuitGroup($idgroup){
@@ -56,14 +87,15 @@ class GroupService
         $users = $this->_groupRepository->GetUsers($idgroup);
         if(count($users) > 1)
         {
-            $this->GroupNotification(Auth::user()->id, $idgroup, QUIT);
+            $this->GroupNotification($this->_currentUser->GetId(), $idgroup, NotificationTypes::QUIT, 0);
         }
         else
         {
             $this->_groupRepository->DeleteGroup($idgroup);
         }
         
-        $this->_groupRepository->RemoveUserFromGroup(Auth::user()->id, $idgroup);
+        $this->_groupRepository->RemoveUserFromGroup($this->_currentUser->GetId(), $idgroup);
+        $this->_pollRepository->DeleteUserVotes($this->_currentUser->GetId(), $idgroup);
     }
 
     public function ApplicationAcceptGroup($iduser, $idgroup)
@@ -75,7 +107,7 @@ class GroupService
             {
                 $this->AddUserToGroup($iduser, $idgroup);
                 $this->_groupRepository->DeleteApplication($iduser, $idgroup);
-                $this->GroupNotification($iduser, $idgroup, JOIN);
+                $this->GroupNotification($iduser, $idgroup, NotificationTypes::JOIN, 0);
             }
             else
             {
@@ -102,14 +134,14 @@ class GroupService
         return true;
     }
 
-    public function GroupNotification($iduser, $idgroup, $type)
+    public function GroupNotification($iduser, $idgroup, $type, $poll)
     {
-        $this->_groupRepository->CreateNotification($iduser, $idgroup, $type);
+        $this->_groupRepository->CreateNotification($iduser, $idgroup, $type, $poll);
     }
 
     public function DeleteGroup($idgroup)
     {
-        if($this->IsInGroup(Auth::user()->id, $idgroup))
+        if($this->IsInGroup($this->_currentUser->GetId(), $idgroup))
         {
             $this->_groupRepository->DeleteGroup($idgroup);
         }
@@ -119,7 +151,55 @@ class GroupService
         }
     }
 
-    public function ApplyForGroup($iduser, $idgroup, $from, $message)
+    public function ApplyForGroup($idgroup, $message)
+    {
+        $group = $this->_groupRepository->Get($idgroup);
+        $iduser = $this->_currentUser->GetId();
+        
+        if($group == null)
+        {
+            throw new InvalidArgumentException("group doesn't exit");
+        }
+
+        if(!$this->IsInGroup($iduser, $idgroup) && !$this->HasApplication($iduser, $idgroup))
+        {
+            $id = $this->_groupRepository->CreateApplication($iduser, $idgroup, $iduser, $message);
+            $poll = $this->_pollRepository->CreateApplicationPoll($iduser, $idgroup);
+
+            $this->GroupNotification($iduser, $idgroup, NotificationTypes::APPLY, $poll);
+            return $poll;
+        }
+        else
+        {
+            throw new \App\Exceptions\InvalidOperationException('Cannot apply to this group, already in.');
+        }
+    }
+    
+    public function DeleteApplication($idgroup)
+    {
+        $group = $this->_groupRepository->Get($idgroup);
+        if($group == null)
+        {
+            throw new InvalidArgumentException("group doesn't exit");
+        }
+        
+        if($this->HasApplication($this->_currentUser->GetId(), $idgroup))
+        {
+            $appli = $this->_groupRepository->GetApplication($this->_currentUser->GetId(), $idgroup);
+            $this->_groupRepository->DeleteApplication(
+                    $this->_currentUser->GetId(), 
+                    $idgroup);
+            
+            $this->GroupNotification($this->_currentUser->GetId(), $idgroup, NotificationTypes::DELETE_APPLY, $appli->id_poll);                   
+            $this->_pollRepository->DeletePoll($appli->id_poll);   
+        }
+        else
+        {
+            throw new \App\Exceptions\InvalidOperationException('Cannot recommand to this group, already in.');
+        }
+    }
+    
+    public function RecommandForGroup($iduser, $idgroup, $message)
     {
         $group = $this->_groupRepository->Get($idgroup);
         if($group == null)
@@ -127,23 +207,21 @@ class GroupService
             throw new InvalidArgumentException("group doesn't exit");
         }
 
-        if(!$this->IsInGroup($iduser, $idgroup) && !$this->HasApplication($iduser, $idgroup)){
-            $id = $this->_groupRepository->CreateApplication($iduser, $idgroup, $from, $message);
-            $this->_groupRepository->CreateApplicationPoll($id, $iduser, $idgroup);
-            if ($from == $iduser) 
-            {
-                $this->GroupNotification($iduser, $idgroup, APPLY);
-            } 
-            else 
-            {
-                $this->GroupNotification($iduser, $idgroup, PROPOSE);
-            }
-
-            return $n->id;
+        if(!$this->IsInGroup($iduser, $idgroup) && !$this->HasApplication($iduser, $idgroup))
+        {
+            $this->_groupRepository->CreateApplication(
+                    $iduser, 
+                    $idgroup, 
+                    $this->_currentUser->GetId(), 
+                    $message);
+            $ret = $this->_pollRepository->CreateApplicationPoll($iduser, $idgroup);
+            $this->GroupNotification($iduser, $idgroup, NotificationTypes::PROPOSE, $ret);
+            
+            return $ret;            
         }
         else
         {
-            throw new Exception('Cannot apply to this group, already in.');
+            throw new \App\Exceptions\InvalidOperationException('Cannot recommand to this group, already in.');
         }
     }
 
@@ -182,4 +260,8 @@ class GroupService
         return $this->_groupRepository->GetBetsForGroupAndGame($id, $param);
     }
 
+    public function GetUsers($id_group)
+    {
+        return $this->_groupRepository->GetUsers($id_group);
+    }
 }

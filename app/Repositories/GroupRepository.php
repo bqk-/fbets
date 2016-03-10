@@ -114,18 +114,7 @@ class GroupRepository implements IGroupRepository
         
         return $n->id;
     }
-    
-    public function CreateApplicationPoll($application, $iduser, $idgroup)
-    {
-        $poll = new Poll;
-        $poll->id_group = $idgroup;
-        $poll->id_user = $iduser;
-        $poll->id_game = $application;
-        $poll->save();
-        
-        return $poll->id;
-    }
-    
+       
     public function GetNotifications($idgroup, $limit = 20)
     {
         return GroupNotification::

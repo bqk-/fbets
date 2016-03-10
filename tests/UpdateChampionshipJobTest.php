@@ -20,12 +20,12 @@ class UpdateChampionshipJobTest extends TestCase {
                     'http://www.lequipe.fr/Football/FootballResultat52205.html', 
                     'http://www.lequipe.fr/Football/FootballResultat52242.html'));
 
-		$svc = new \App\Jobs\UpdateChampionship($adminService, 
+		$svc = new \App\Jobs\UpdateChampionship($cs);
+        
+        $svc->handle($adminService, 
                 $championshipService, 
                 $gameService, 
                 $teamService);
-        
-        $svc->handle($cs);
         
         $this->assertEquals($gameService->GetAllGames($cs)->count(), 380);
 	}
@@ -43,12 +43,12 @@ class UpdateChampionshipJobTest extends TestCase {
                     'http://www.lequipe.fr/Rugby/RugbyResultat7543.html', 
                     'http://www.lequipe.fr/Rugby/RugbyResultat7568.html'));
 
-		$svc = new \App\Jobs\UpdateChampionship($adminService, 
+		$svc = new \App\Jobs\UpdateChampionship($cs);
+        
+        $svc->handle($adminService, 
                 $championshipService, 
                 $gameService, 
                 $teamService);
-        
-        $svc->handle($cs);
         
         $this->assertEquals($gameService->GetAllGames($cs)->count(), 182);
 	}

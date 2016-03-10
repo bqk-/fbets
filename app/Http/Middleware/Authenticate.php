@@ -2,6 +2,7 @@
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use App\Services\Contracts\ICurrentUser;
 
 class Authenticate {
 
@@ -12,15 +13,22 @@ class Authenticate {
 	 */
 	protected $auth;
 
+    /**
+	 * The current user.
+	 *
+	 * @var ICurrentUser
+	 */
+	protected $user;
 	/**
 	 * Create a new filter instance.
 	 *
 	 * @param  Guard  $auth
 	 * @return void
 	 */
-	public function __construct(Guard $auth)
+	public function __construct(Guard $auth, ICurrentUser $user)
 	{
 		$this->auth = $auth;
+        $this->user = $user;
 	}
 
 	/**
@@ -32,7 +40,7 @@ class Authenticate {
 	 */
 	public function handle($request, Closure $next)
 	{
-		if ($this->auth->guest())
+		if ($this->user == null || $this->user->GetId() == 0)
 		{
 			if ($request->ajax())
 			{
@@ -40,7 +48,7 @@ class Authenticate {
 			}
 			else
 			{
-				return redirect()->guest('auth/login');
+				return redirect()->guest('/login');
 			}
 		}
 

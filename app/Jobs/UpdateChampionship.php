@@ -40,7 +40,20 @@ class UpdateChampionship extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(AdminService $adminService,
+    
+    private $ChampId;
+    
+    public function __construct($champId)
+    {
+        $this->ChampId = $champId;
+    }
+
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle(AdminService $adminService,
         ChampionshipService $championshipService,
         GameService $gameService,
         TeamService $teamService)
@@ -49,22 +62,14 @@ class UpdateChampionship extends Job implements ShouldQueue
         $this->ChampionshipService = $championshipService;
         $this->GameService = $gameService;
         $this->TeamService = $teamService;
-    }
-
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
-    public function handle($champId)
-    {
-        $championship = $this->ChampionshipService->Get($champId);
+        
+        $championship = $this->ChampionshipService->Get($this->ChampId);
         if($championship == null)
         {
-            throw new \App\Exceptions\InvalidOperationException('Cannot find championship: ' . $champId);
+            throw new \App\Exceptions\InvalidOperationException('Cannot find championship: ' . $this->ChampId);
         }
         
-        if($this->ChampionshipService->HasGames($champId))
+        if($this->ChampionshipService->HasGames($this->ChampId))
         {
             $this->UpdateChampionship($championship);
         }

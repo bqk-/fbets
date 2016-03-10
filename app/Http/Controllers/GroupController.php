@@ -2,6 +2,7 @@
 
 use App\Services\GroupService;
 use App\Services\GameService;
+use App\Services\Contracts\ICurrentUser;
 use \Redirect;
 use \View;
 use \Auth;
@@ -12,11 +13,15 @@ class GroupController extends Controller
 {
     private $_groupService;
     private $_gameService;
+    private $_currentUser;
     
-    public function __construct(GroupService $groupService, GameService $gameService)
+    public function __construct(GroupService $groupService, 
+            GameService $gameService,
+            ICurrentUser $user)
     {
         $this->_groupService = $groupService;
         $this->_gameService = $gameService;
+        $this->_currentUser = $user;
     }
 
     public function getIndex()
@@ -25,7 +30,7 @@ class GroupController extends Controller
     }
 
     public function getCreate()
-    {
+    {        
         return View::make('group/create');
     }
 
@@ -147,7 +152,7 @@ class GroupController extends Controller
         );
         if($validator->passes())
         {
-            $this->_groupService->ApplyForGroup(Auth::User()->id, Input::get('id_group'), Auth::User()->id, Input::get('message'));
+            $this->_groupService->ApplyForGroup(Input::get('id_group'), Input::get('message'));
             return Redirect::to('/group')->with(
                 'success',
                 trans('alert.sucapply_group')
@@ -177,7 +182,7 @@ class GroupController extends Controller
             {
                 foreach($ids as $id)
                 {
-                    $this->_groupService->ApplyForGroup($id->id, Input::get('id_group'), Auth::User()->id, Input::get('message'));
+                    $this->_groupService->RecommandForGroup($id->id, Input::get('id_group'), Input::get('message'));
                 }
 
                 return Redirect::to('/group')->with(
