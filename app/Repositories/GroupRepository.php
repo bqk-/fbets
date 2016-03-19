@@ -33,11 +33,13 @@ class GroupRepository implements IGroupRepository
         return $this->Get($idgroup)->users();
     }
     
-    public function CreateGroup($name, $descripiton) 
+    public function CreateGroup($name, $description, \DateTime $start, \DateTime $end) 
     {
         $g = new Group;
         $g->name = $name;
         $g->description = $description;
+        $g->start = $start;
+        $g->end = $end;
         $g->save();
         
         return $g->id;

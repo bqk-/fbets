@@ -3,6 +3,8 @@
 interface IPollRepository
 {
 
+    public function GetGamePoll($group, $game);
+
     public function DeletePoll($id_poll);
 
     public function GetVote($id_poll, $id_user);

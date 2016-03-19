@@ -3,6 +3,10 @@
 interface IGroupRepository
 {
 
+    public function AddGameToGroup($game, $group);
+
+    public function GroupHasGame($group, $game);
+
     public function IsInGroup($iduser, $idgroup);
 
     public function GetBetsForGroupAndGame($idgroup, $idgame);
@@ -13,7 +17,7 @@ interface IGroupRepository
 
     public function Get($id);
     
-    public function CreateGroup($name, $description);
+    public function CreateGroup($name, $description, \DateTime $start, \DateTime $end);
 
     public function PutUserInGroup($user, $group);
     

@@ -25,7 +25,7 @@ class MockPollRepository implements \App\Repositories\Contracts\IPollRepository
     {
         $a = new \App\Models\Data\Poll();
         $a->id_user = $user;
-        $a->id_game = 0;
+        $a->id_game = $id_game;
         $a->id_group = $id_group;
         $a->type = $type;
         $a->id = ++$this->seed;
@@ -104,6 +104,22 @@ class MockPollRepository implements \App\Repositories\Contracts\IPollRepository
                 }
             } 
         }
+    }
+
+    public function GetGamePoll($group, $game)
+    {
+        foreach ($this->polls as $group)
+        {
+            foreach ($group as $key => $poll)
+            {
+                if($poll->id_game == $game)
+                {
+                    return $poll;
+                }
+            } 
+        }
+        
+        return null;
     }
 
 }

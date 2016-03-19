@@ -2,6 +2,7 @@
 
 use App\Repositories\Contracts\IGroupRepository;
 use App\Repositories\Contracts\IPollRepository;
+use App\Repositories\Contracts\IGameRepository;
 use App\Services\Contracts\ICurrentUser;
 use App\Exceptions\InvalidArgumentException;
 use \Validator;
@@ -13,17 +14,22 @@ class GroupService
     private $_groupRepository;
     private $_currentUser;
     private $_pollRepository;
+    private $_gameRepository;
 
+    private $DELAY_MINI_GROUP = '1 day';
+    
     public function __construct(IGroupRepository $groupRepository,
             ICurrentUser $currentUser,
-            IPollRepository $pollRepository)
+            IPollRepository $pollRepository,
+            IGameRepository $gameRepository)
     {
         $this->_groupRepository = $groupRepository;
         $this->_currentUser = $currentUser;
         $this->_pollRepository = $pollRepository;
+        $this->_gameRepository = $gameRepository;
     }
 
-    public function CreateGroup($name, $description)
+    public function CreateGroup($name, $description, \DateTime $start, \DateTime $end)
     {
         if(empty($name))
         {
@@ -47,17 +53,26 @@ class GroupService
         
         if($validator->passes())
         {
-            if($this->_groupRepository->GetByName($name) == null)
+            $limit = new \DateTime();
+            $limit->add(\DateInterval::createFromDateString($this->DELAY_MINI_GROUP));
+            if($start >= $limit)
             {
-                $id = $this->_groupRepository->CreateGroup($name, $description);
+                if($this->_groupRepository->GetByName($name) == null)
+                {
+                    $id = $this->_groupRepository->CreateGroup($name, $description, $start, $end);
 
-                $this->JoinGroup($id);
+                    $this->JoinGroup($id);
 
-                return $id;
+                    return $id;
+                }
+                else
+                {
+                    throw new \App\Exceptions\InvalidOperationException('group name is not unique');
+                }
             }
             else
             {
-                throw new \App\Exceptions\InvalidOperationException('group name is not unique');
+                throw new \App\Exceptions\InvalidOperationException('Need some time to add games/users');
             }
         }
         else
@@ -264,4 +279,63 @@ class GroupService
     {
         return $this->_groupRepository->GetUsers($id_group);
     }
+    
+    public function SuggestGameForGroup($group, $game)
+    {
+        if(!$this->IsInGroup($this->_currentUser->GetId(), $group))
+        {
+            throw new \App\Exceptions\InvalidOperationException('Not in group');
+        }
+        $gameObj = $this->_gameRepository->Get($game);
+        if($gameObj == null)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Game not found: ' . $game);
+        }
+        
+        $limit = new \DateTime();
+        $limit->add(\DateInterval::createFromDateString($this->DELAY_MINI_GROUP));
+        $groupObj = $this->_groupRepository->Get($group);
+
+        if($gameObj->date < $limit)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Game is starting too soon.');
+        }
+        
+        if($gameObj->date < $groupObj->start || $gameObj->date > $groupObj->end)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Game is not in the interval.');
+        }
+        
+        if($this->_groupRepository->GroupHasGame($group, $game))
+        {
+            throw new \App\Exceptions\InvalidOperationException('Already added');
+        }
+        
+        if($this->_pollRepository->GetGamePoll($group, $game) != null)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Already voting for it');
+        }
+        
+        $poll = $this->_pollRepository->CreateGamePoll($game, $game);
+        $this->GroupNotification($this->_currentUser->GetId(), $group, NotificationTypes::POLL_START, $poll);
+        
+        return $poll;
+    }
+
+    public function AddGameToGroup($game, $group)
+    {
+         if($this->_gameRepository->Get($game) == null)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Game not found: ' . $game);
+        }
+        
+        if($this->_groupRepository->GroupHasGame($group, $game))
+        {
+            throw new \App\Exceptions\InvalidOperationException('Already added');
+        }
+        
+        $this->_groupRepository->AddGameToGroup($game, $group);
+        $this->GroupNotification(null, $group, NotificationTypes::POLL_END, 0);
+    }
+
 }

@@ -18,6 +18,8 @@ class CreateGroups extends Migration {
             $table->string('name');
             $table->string('description');
             $table->integer('money');
+            $table->timestamp('start');
+            $table->timestamp('end');
             $table->timestamps();
             $table->softDeletes();
         });

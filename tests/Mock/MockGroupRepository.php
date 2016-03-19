@@ -14,6 +14,7 @@ class MockGroupRepository implements \App\Repositories\Contracts\IGroupRepositor
     private $notifications = array();
     private $polls = array();
     private $applications = array();
+    private $games = array();
     
     public function CreateApplication($iduser, $idgroup, $from, $message) 
     {
@@ -27,11 +28,14 @@ class MockGroupRepository implements \App\Repositories\Contracts\IGroupRepositor
         return $this->seed;
     }
 
-    public function CreateGroup($name, $description) {
+    public function CreateGroup($name, $description, \DateTime $start, \DateTime $end) 
+    {
         $g = new \App\Models\Data\Group;
         $g->id = ++$this->seed;
         $g->name = $name;
         $g->description = $description;
+        $g->start = $start;
+        $g->end = $end;
         
         $this->groups[$this->seed] = $g;
         
@@ -116,7 +120,7 @@ class MockGroupRepository implements \App\Repositories\Contracts\IGroupRepositor
             return new \Illuminate\Database\Eloquent\Collection($this->users[$idgroup]);
         }
         
-        return null;
+        return new \Illuminate\Database\Eloquent\Collection();
     }
 
     public function PutUserInGroup($user, $group) {        
@@ -162,4 +166,13 @@ class MockGroupRepository implements \App\Repositories\Contracts\IGroupRepositor
         return false;
     }
 
+    public function GroupHasGame($group, $game)
+    {
+        return false;
+    }
+
+    public function AddGameToGroup($game, $group)
+    {
+        $this->games[$group][] = $game;
+    }
 }

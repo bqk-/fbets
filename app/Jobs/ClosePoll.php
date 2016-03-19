@@ -91,10 +91,14 @@ class ClosePoll extends Job implements ShouldQueue
             case \App\Models\Types\PollTypes::USER_ADD:
                 $this->GroupService->AddUserToGroup($poll->id_user, $poll->id_group);
                 break;
-
+            
+            case \App\Models\Types\PollTypes::GAME_ADD:
+                $this->GroupService->AddGameToGroup($poll->id_game, $poll->id_group);
+                break;
+            
             //TODO: Code other types
             default:
-                throw new Exception("Not implemented");
+                throw new \App\Exceptions\InvalidOperationException("Not implemented");
         }
 
         $this->PollService->DeletePoll($poll->id);

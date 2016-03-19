@@ -43,7 +43,8 @@ class PollService
         $this->_pollRepository->AddVote($this->_currentUser->GetId(), $poll->id, $opinion);
 
         $users = $this->_groupRepository->GetUsers($poll->id_group);
-        if($this->GetVotes($id_poll)->count() >= $users->count())
+        if(($poll->type == \App\Models\Types\PollTypes::USER_ADD || $poll->type == \App\Models\Types\PollTypes::USER_DEL)
+                && $this->GetVotes($id_poll)->count() >= $users->count())
         {
             $this->dispatch(new ClosePoll($poll->id));
         }

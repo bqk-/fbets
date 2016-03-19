@@ -2,7 +2,7 @@
 
 class RatesTest extends TestCase
 {
-    /**
+    /** TODO: betservice - limit 1 bet/user
      * Register a test user
      *
      * @return void

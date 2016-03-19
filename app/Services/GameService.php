@@ -76,7 +76,7 @@ class GameService
 
     public function Create(\App\Models\Admin\TournamentClasses\Game $game, $idChamp, $relations)
     {
-       $id = $this->_gameRepository->Create($relations[$game->TeamHome->Id], 
+        $id = $this->_gameRepository->Create($relations[$game->TeamHome->Id], 
                 $relations[$game->TeamVisit->Id],
                 $idChamp,
                 $game->Date);

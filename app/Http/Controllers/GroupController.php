@@ -47,7 +47,13 @@ class GroupController extends Controller
         {
             if(!$this->_groupService->GroupExits(Input::get('name')))
             {
-                $id = $this->_groupService->CreateGroup(Input::get('name'), Input::get('description'), Auth::user()->id);
+                $id = $this->_groupService->CreateGroup(
+                        Input::get('name'), 
+                        Input::get('description'), 
+                        Auth::user()->id,
+                        new \DateTime(Input::get('start')),
+                        new \DateTime(Input::get('end'))
+                        );
                 return Redirect::to('group/view/'.$id)->with(
                     'success',
                     trans('alert.succreate_group')

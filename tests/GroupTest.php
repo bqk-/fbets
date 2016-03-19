@@ -32,8 +32,12 @@ class GroupTest extends TestCase {
         $user->LogUser(3);
         
 		$srv = $this->app->make('App\Services\GroupService');
-        
-        $ret = $srv->CreateGroup('group test', 'plop plop plop');
+        $start = new DateTime();
+        $start->add(DateInterval::createFromDateString('1 month'));
+        $end = new DateTime();
+        $end->add(DateInterval::createFromDateString('6 months'));
+        $ret = $srv->CreateGroup('group test', 'plop plop plop',
+                $start, $end);
         $this->assertGreaterThan(0, $ret);
         
         $users = $srv->GetUsers($ret);
@@ -61,9 +65,14 @@ class GroupTest extends TestCase {
         $user->LogUser(1);
         
 		$srv = $this->app->make('App\Services\GroupService');
-        
-        $ret = $srv->CreateGroup('group test', 'plop plop plop');
-        $ret2 = $srv->CreateGroup('group test', 'plop plop plop plop');
+        $start = new DateTime();
+        $start->add(DateInterval::createFromDateString('1 month'));
+        $end = new DateTime();
+        $end->add(DateInterval::createFromDateString('6 months'));
+        $ret = $srv->CreateGroup('group test', 'plop plop plop', 
+                $start, $end);
+        $ret2 = $srv->CreateGroup('group test', 'plop plop plop plop',
+                $start, $end);
         
         $this->assertGreaterThan(0, $ret);
 	}
@@ -78,8 +87,12 @@ class GroupTest extends TestCase {
         
 		$srv = $this->app->make('App\Services\GroupService');
         $pollSrv = $this->app->make('App\Services\PollService');
-        
-        $grp = $srv->CreateGroup('group test', 'plop plop plop');
+        $start = new DateTime();
+        $start->add(DateInterval::createFromDateString('1 month'));
+        $end = new DateTime();
+        $end->add(DateInterval::createFromDateString('6 months'));
+        $grp = $srv->CreateGroup('group test', 'plop plop plop',
+                $start, $end);
         $poll = $srv->RecommandForGroup(2, $grp, 'cool guy boys!');
         
         $invits = $srv->GetApplications($grp);
@@ -118,8 +131,12 @@ class GroupTest extends TestCase {
         
 		$srv = $this->app->make('App\Services\GroupService');
         $pollSrv = $this->app->make('App\Services\PollService');
-        
-        $grp = $srv->CreateGroup('group test', 'plop plop plop');
+        $start = new DateTime();
+        $start->add(DateInterval::createFromDateString('1 month'));
+        $end = new DateTime();
+        $end->add(DateInterval::createFromDateString('6 months'));
+        $grp = $srv->CreateGroup('group test', 'plop plop plop',
+                $start, $end);
         
         $user->LogUser(2);
         $poll = $srv->ApplyForGroup($grp, 'cool guy boys!');
@@ -161,8 +178,12 @@ class GroupTest extends TestCase {
         
 		$srv = $this->app->make('App\Services\GroupService');
         $pollSrv = $this->app->make('App\Services\PollService');
-        
-        $grp = $srv->CreateGroup('group test', 'plop plop plop');
+        $start = new DateTime();
+        $start->add(DateInterval::createFromDateString('1 month'));
+        $end = new DateTime();
+        $end->add(DateInterval::createFromDateString('6 months'));
+        $grp = $srv->CreateGroup('group test', 'plop plop plop',
+                $start, $end);
         $this->assertTrue($srv->IsInGroup(1, $grp));
         $poll = $srv->RecommandForGroup(1, $grp, 'cool guy boys!');
 	}
@@ -177,8 +198,12 @@ class GroupTest extends TestCase {
         
 		$srv = $this->app->make('App\Services\GroupService');
         $pollSrv = $this->app->make('App\Services\PollService');
-        
-        $grp = $srv->CreateGroup('group test', 'plop plop plop');
+        $start = new DateTime();
+        $start->add(DateInterval::createFromDateString('1 month'));
+        $end = new DateTime();
+        $end->add(DateInterval::createFromDateString('6 months'));
+        $grp = $srv->CreateGroup('group test', 'plop plop plop',
+                $start, $end);
         $user->LogUser(2);
         $poll = $srv->ApplyForGroup($grp, 'cool guy boys!');
         
@@ -215,8 +240,12 @@ class GroupTest extends TestCase {
         
 		$srv = $this->app->make('App\Services\GroupService');
         $pollSrv = $this->app->make('App\Services\PollService');
-        
-        $grp = $srv->CreateGroup('group test', 'plop plop plop');
+        $start = new DateTime();
+        $start->add(DateInterval::createFromDateString('1 month'));
+        $end = new DateTime();
+        $end->add(DateInterval::createFromDateString('6 months'));
+        $grp = $srv->CreateGroup('group test', 'plop plop plop',
+                $start, $end);
         $this->assertFalse ($srv->IsInGroup(2, $grp));
         $poll = $srv->RecommandForGroup(2, $grp, 'cool guy boys!');
         
@@ -248,10 +277,32 @@ class GroupTest extends TestCase {
         
 		$srv = $this->app->make('App\Services\GroupService');
         $pollSrv = $this->app->make('App\Services\PollService');
-        
-        $grp = $srv->CreateGroup('group test', 'plop plop plop');
+        $start = new DateTime();
+        $start->add(DateInterval::createFromDateString('1 month'));
+        $end = new DateTime();
+        $end->add(DateInterval::createFromDateString('6 months'));
+        $grp = $srv->CreateGroup('group test', 'plop plop plop',
+                $start, $end);
         $poll = $srv->RecommandForGroup(2, $grp, 'cool guy boys!');
         $pollSrv->AddVote($poll, App\Models\Types\VoteTypes::YES);
         $pollSrv->AddVote($poll, App\Models\Types\VoteTypes::NO);
+	}
+    
+    /**
+    * @expectedException \App\Exceptions\InvalidOperationException
+    * @expectedExceptionMessage Invalid operation: Need some time to add games/users
+    */
+    public function testCreateGroupStartTooSoon()
+	{   
+        $user = $this->app->make('App\Services\Contracts\ICurrentUser');
+        $user->LogUser(1);
+        
+		$srv = $this->app->make('App\Services\GroupService');
+        $pollSrv = $this->app->make('App\Services\PollService');
+        $start = new DateTime();
+        $end = new DateTime();
+        $end->add(DateInterval::createFromDateString('6 months'));
+        $grp = $srv->CreateGroup('group test', 'plop plop plop',
+                $start, $end);
 	}
 }

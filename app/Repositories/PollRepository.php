@@ -81,5 +81,10 @@ class PollRepository implements IPollRepository
         Vote::find($id_poll)->delete();
     }
 
+    public function GetGamePoll($group, $game)
+    {
+        return Poll::where('id_game', $game)->get();
+    }
+
 }
 
