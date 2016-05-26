@@ -19,7 +19,7 @@ class ProcessBetJobTest extends TestCase {
         $adminService = $this->app->make('App\Services\AdminService');
         
         $cs = $championshipService->Create('Test', 'Lequipe_Football', 1);
-        $adminService->UpdateChampionshipParams($cs, 
+        $adminService->UpdateChampionshipParams($cs->id, 
                 array(
                     'http://www.lequipe.fr/Football/FootballResultat52205.html', 
                     'http://www.lequipe.fr/Football/FootballResultat52242.html'));
@@ -30,7 +30,7 @@ class ProcessBetJobTest extends TestCase {
                 new \App\Models\Admin\TournamentClasses\Team(2, 'bloh', 'url'), 
                 '2016-02-14', 
                 new App\Models\Admin\TournamentClasses\Score(5, 5, App\Models\Types\GameStates::DRAW)),
-                $cs,
+                $cs->id,
                 array(1 => 1, 2 => 2));
         
         $user->LogUser(2);

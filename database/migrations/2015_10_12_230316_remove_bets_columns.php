@@ -16,7 +16,7 @@ class RemoveBetsColumns extends Migration {
         {
             $table->dropColumn(['right1', 'right2', 'score1', 'score2']);
             $table->integer('bet')->after('id_game');
-            $table->integer('state')->after('team2');
+            $table->integer('state')->after('bet');
         });
 
         Schema::table('results', function($table)

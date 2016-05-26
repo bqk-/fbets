@@ -28,26 +28,7 @@ $(function() {
 
         );
     });
-
-    $('.active').click(function(e){
-        e.preventDefault();
-        $.ajax({
-            type: "GET",
-            url: '{{ URL::to('/admin/active/champ') }}/'+$(this).data('id'),
-            context: $(this),
-            success: function(data) {
-                if($(this).parent().find('.active').hasClass('glyphicon-ok-circle')){
-                    $(this).parent().find('.active').removeClass('glyphicon-ok-circle').addClass('glyphicon-remove-circle');
-                    $(this).parent().find('.active').removeClass('text-success').addClass('text-danger');
-                }
-                else{
-                    $(this).parent().find('.active').removeClass('glyphicon-remove-circle').addClass('glyphicon-ok-circle');
-                    $(this).parent().find('.active').removeClass('text-danger').addClass('text-success');
-                }
-            }
-        });
-    });
-
+    
     $('.team1').keyup(function(){
         var s = $(this).val();
         $.ajax({

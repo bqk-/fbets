@@ -16,14 +16,14 @@ class GroupGameTest extends TestCase
         $teamService = $this->app->make('App\Services\TeamService');
         
         $cs = $championshipService->Create('Test', 'MockITournament', 1);
-        $svc = new \App\Jobs\UpdateChampionship($cs);
+        $svc = new \App\Jobs\UpdateChampionship($cs->id);
         
         $svc->handle($adminService, 
                 $championshipService, 
                 $gameService, 
                 $teamService);
         
-        $this->assertEquals($gameService->GetAllGames($cs)->count(), 3);
+        $this->assertEquals($gameService->GetAllGames($cs->id)->count(), 3);
         $start = new DateTime();
         $end = new DateTime();
         $start->add(DateInterval::createFromDateString('1 month'));
@@ -57,14 +57,14 @@ class GroupGameTest extends TestCase
         $teamService = $this->app->make('App\Services\TeamService');
         
         $cs = $championshipService->Create('Test', 'MockITournament', 1);
-        $svc = new \App\Jobs\UpdateChampionship($cs);
+        $svc = new \App\Jobs\UpdateChampionship($cs->id);
         
         $svc->handle($adminService, 
                 $championshipService, 
                 $gameService, 
                 $teamService);
         
-        $this->assertEquals($gameService->GetAllGames($cs)->count(), 3);
+        $this->assertEquals($gameService->GetAllGames($cs->id)->count(), 3);
         $start = new DateTime();
         $start->add(DateInterval::createFromDateString('1 week'));
         $end = new DateTime();
@@ -73,10 +73,5 @@ class GroupGameTest extends TestCase
         $grp = $srv->CreateGroup('group test', 'plop plop plop',
                  $start, $end);
         $poll = $srv->SuggestGameForGroup($grp, 3);
-        
-        $pollSrv->AddVote($poll, App\Models\Types\VoteTypes::YES);
-        
-        $job = new \App\Jobs\ClosePoll($poll);
-        $job->handle($pollSrv, $srv);
 	}
 }

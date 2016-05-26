@@ -4,7 +4,7 @@ use App\Repositories\Contracts\IPollRepository;
 use App\Repositories\Contracts\IGroupRepository;
 use App\Services\Contracts\ICurrentUser;
 use App\Jobs\ClosePoll;
-
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 define('EXPIRATION_DELAY', "7 days");
@@ -46,7 +46,7 @@ class PollService
         if(($poll->type == \App\Models\Types\PollTypes::USER_ADD || $poll->type == \App\Models\Types\PollTypes::USER_DEL)
                 && $this->GetVotes($id_poll)->count() >= $users->count())
         {
-            $this->dispatch(new ClosePoll($poll->id));
+            Queue::push(new ClosePoll($poll->id));
         }
     }
     

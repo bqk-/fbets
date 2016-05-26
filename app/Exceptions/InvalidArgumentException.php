@@ -9,7 +9,7 @@ class InvalidArgumentException extends Exception
 
     public function __construct($fieldName, $value, Exception $previous = null)
     {
-        $this->message = 'Invalid value for argument: ' . $fieldName . ' = ' . var_dump($value) . ' (User: ' .
+        $this->message = 'Invalid value for argument: ' . $fieldName . ' = ' . var_export($value, true) . ' (User: ' .
             Auth::user()
         ->id .
             ')';

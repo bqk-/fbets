@@ -23,7 +23,7 @@ class MockChampionshipRepository implements \App\Repositories\Contracts\IChampio
         $championship->id_sport = $sport;
         $championship->active = 1;
         $championship->id = ++$this->id;
-
+        $championship->params = array();
         $this->championships[$championship->id] = $championship;
 
         return $this->id;

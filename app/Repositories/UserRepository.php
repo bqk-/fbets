@@ -1,6 +1,7 @@
 <?php namespace App\Repositories;
 
 use App\Repositories\Contracts\IUserRepository;
+use App\Models\Data\User;
 use \Hash;
 
 class UserRepository implements IUserRepository

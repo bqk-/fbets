@@ -9,7 +9,7 @@
             <table class="table table-striped table-hover">
                 @foreach ($champ->games as $g)
                         <tr style="height:36px;">
-                            <td style="padding-top:13px;"><img src="{{ \App\Helpers\ViewHelper::getImagePathFromId($g->team1()->first()->logo) }}" /></td>
+                            <td style="padding-top:13px;"><img style="width: 32px; height: 32px;" src="{{ \App\Helpers\ViewHelper::getImagePathFromId($g->team1()->first()->logo) }}" /></td>
                             <td style="padding-top:13px;">{{ $g->team1()->first()->name }}</td>
                             <td class="text-center small">
                                 @if($g->score()->first() != null)
@@ -28,7 +28,7 @@
                                     @endif
                                 @endif
                             <td style="padding-top:13px;">{{ $g->team2()->first()->name }}</td>
-                            <td style="padding-top:13px;"><img src="{{ \App\Helpers\ViewHelper::getImagePathFromId($g->team2()->first()->logo) }}" /></td>
+                            <td style="padding-top:13px;"><img style="width: 32px; height: 32px;" src="{{ \App\Helpers\ViewHelper::getImagePathFromId($g->team2()->first()->logo) }}" /></td>
                             <td style="padding-top:13px;">{{ \App\Helpers\DateHelper::sqlDateToStringHuman($g->date) }}</td>
                         </tr>
                 @endforeach

@@ -1,6 +1,7 @@
 <?php namespace App\Exceptions;
 
 use Exception;
+use \Auth;
 
 class NotFoundException extends Exception
 {

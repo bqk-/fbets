@@ -45,14 +45,14 @@ class AdminService
     public function GetAvailableClasses()
     {
         $dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'Models' . DIRECTORY_SEPARATOR
-            . 'Admin';
+            . 'Admin' . DIRECTORY_SEPARATOR . 'Tournament';
         $dh  = opendir($dir);
 
         $files = array();
         while (false !== ($filename = readdir($dh))) {
-            if(substr($filename, 0, 1) != 'I' && filetype($dir . DIRECTORY_SEPARATOR . $filename) != 'dir')
+            if(strtolower(substr($filename, 0, 1)) != 'i' && filetype($dir . DIRECTORY_SEPARATOR . $filename) != 'dir')
             {
-                $files[$filename] = substr($filename, 0, -4);
+                $files[substr($filename, 0, -4)] = substr($filename, 0, -4);
             }
         }
 
@@ -65,14 +65,7 @@ class AdminService
         $className = $this->GetFullClassName($champ->type);
         $reflectionObj = new \ReflectionClass($className);
 
-        if($champ->params == null)
-        {
-            $workingClass = $reflectionObj->newInstanceArgs(array());
-        }
-        else
-        {
-            $workingClass = $reflectionObj->newInstanceArgs($champ->params);
-        }
+        $workingClass = $reflectionObj->newInstanceArgs($champ->params);
 
         return $workingClass;
     }

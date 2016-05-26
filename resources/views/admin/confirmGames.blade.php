@@ -36,7 +36,7 @@
                                     @else
                                         {!! Form::select('action['.$t->Id.']', $existingTeams) !!}
                                     @endif
-                                    <img src="{{ $t->LogoUrl }}" /> {{ $t->Id }}: {{ $t->Name }}
+                                    <img style="width: 32px; height: 32px;" src="{{ $t->LogoUrl }}" /> {{ $t->Id }}: {{ $t->Name }}
                                 </a>
                             @endforeach
                         </div>
@@ -50,8 +50,8 @@
                     <div class="panel-body">
                         <div class="list-group">
                             @foreach ($games as $game)
-                                <a href="#" class="list-group-item"><img src="{{ $game->TeamHome->LogoUrl }}" /> {{ $game->TeamHome->Name
-                                }} {{ $game->Score() }} {{ $game->TeamVisit->Name }} <img src="{{ $game->TeamVisit->LogoUrl }}" /> | {{
+                            <a href="#" class="list-group-item"><img style="width: 32px; height: 32px;" src="{{ $game->TeamHome->LogoUrl }}" /> {{ $game->TeamHome->Name
+                                }} {{ $game->Score() }} {{ $game->TeamVisit->Name }} <img style="width: 32px; height: 32px;" src="{{ $game->TeamVisit->LogoUrl }}" /> | {{
                                 $game->Date }}
                                 </a>
                             @endforeach

@@ -79,9 +79,6 @@ class GroupTest extends TestCase {
     
     public function testCreateGroupInviteAndJoin()
 	{
-        //somehow this needs to be first
-        $this->expectsJobs(App\Jobs\ClosePoll::class);
-        
         $user = $this->app->make('App\Services\Contracts\ICurrentUser');
         $user->LogUser(1);
         
@@ -123,9 +120,6 @@ class GroupTest extends TestCase {
     
     public function testCreateGroupApplyAndJoin()
 	{
-        //somehow this needs to be first
-        $this->expectsJobs(App\Jobs\ClosePoll::class);
-        
         $user = $this->app->make('App\Services\Contracts\ICurrentUser');
         $user->LogUser(1);
         
@@ -190,9 +184,6 @@ class GroupTest extends TestCase {
     
     public function testCreateGroupApplyAndRefuse()
 	{
-        //somehow this needs to be first
-        $this->expectsJobs(App\Jobs\ClosePoll::class);
-        
         $user = $this->app->make('App\Services\Contracts\ICurrentUser');
         $user->LogUser(1);
         

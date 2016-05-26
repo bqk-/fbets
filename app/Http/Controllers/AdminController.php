@@ -15,6 +15,7 @@ use \View;
 use \Redirect;
 use \Input;
 use \Validator;
+use Illuminate\Support\Facades\Queue;
 
 class AdminController extends Controller {
     public static $admins = array(1,2);
@@ -111,11 +112,9 @@ class AdminController extends Controller {
             ('sport'));
 
             $params = $this->_adminService->GetConstructorParamsFromClassname(Input::get('class'));
-            $className = 'App\Models\Admin\\'. Input::get('class');
-            $modelConstruct = new \ReflectionMethod($className, '__construct');
-            $arrayParams = $modelConstruct->getParameters();
 
-            return View::make('admin/reloadGames', array('championship' => $championship, 'params' => $arrayParams));
+            return View::make('admin/reloadGames', 
+                    array('championship' => $championship, 'params' => $params, 'dbParams' => null));
         }
 
         return Redirect::to('admin/new-champ')->with('error','Missing fields')->withErrors
@@ -213,7 +212,7 @@ class AdminController extends Controller {
         if(Input::has('id_champ') && Input::get('id_champ') > 0)
         {
             $this->_adminService->UpdateChampionshipParams(Input::get('id_champ'), Input::get('param'));
-            $this->dispatch(new \App\Jobs\UpdateChampionship(Input::get('id_champ')));
+            Queue::push(new \App\Jobs\UpdateChampionship(Input::get('id_champ')));
             
             return Redirect::to('admin/')->with('success', 'Parameters changed, '
                     . 'called worker to initialize.');
@@ -228,9 +227,10 @@ class AdminController extends Controller {
         return View::make('admin/enterresults')->with(array('games' => $games));
     }
 
-    public function getActiveChamp($id = null)
+    public function getToggleChamp($id)
     {
         $this->_adminService->ToggleActiveChampionship($id);
+        return Redirect::to('admin/view-championship/' . $id)->with('Success', 'Changed championship status.');
     }
 
     public static function isAdmin(){
@@ -327,7 +327,7 @@ class AdminController extends Controller {
     {
         if(Input::has('championship') && Input::get('championship') > 0)
         {
-            $this->_adminService->UpdateChampionshipParams(Input::get('championship'), Input::get('param'));
+            $this->_adminService->UpdateChampionshipParams(Input::get('championship'), Input::get('param') == null ? array() : Input::get('param'));
             $model = $this->_adminService->GetChampionshipConstructorParams(Input::get('championship'));
             $workingClass = $this->_adminService->GetWorkingClassForChampionship(
                     Input::get('championship'),
@@ -339,7 +339,7 @@ class AdminController extends Controller {
             $relations = $this->_teamService->GetRelations($model->GetChampionship()->id);
 
             $existingTeams->prepend('NEW', 0);
-
+          
             return View::make('admin/confirmGames',
                 array('championship' => $model->GetChampionship(),
                         'teams' => $teams,
@@ -369,5 +369,12 @@ class AdminController extends Controller {
         }
 
         return Redirect::to('admin');
+    }
+    
+    public function getRefreshGames($id)
+    {
+        Queue::push(new \App\Jobs\UpdateChampionship($id));
+            
+        return Redirect::to('admin/view-championship/' . $id)->with('success', 'Called worker to refresh.');
     }
 }

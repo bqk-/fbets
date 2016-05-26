@@ -13,7 +13,11 @@
                         <div class="list-group">
                             @foreach($games as $g)
                                 <li class="list-group-item">
-                                    {{ $g->team1()->name }} - {{ $g->team2()->name }} | {{ $g->date }}
+                                    <img style="width: 32px; height: 32px;" src="{{ \App\Helpers\ViewHelper::getImagePathFromId($g->team1()->first()->logo) }}" />
+                                    {{ $g->team1()->first()->name }} - 
+                                    <img style="width: 32px; height: 32px;" src="{{ \App\Helpers\ViewHelper::getImagePathFromId($g->team2()->first()->logo) }}" />
+                                    {{ $g->team2()->first()->name }} 
+                                    | {{ $g->date }}
                                 </li>
                             @endforeach
                         </div>

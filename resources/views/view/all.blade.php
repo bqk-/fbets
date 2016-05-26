@@ -8,7 +8,7 @@
           <div class="row">
             <span class="col-md-9 homeboxtitle">
             <a href="{{ URL::to('view/championship') }}/{{ $champ->id }}">
-              <img src="{{ $champ->sport()->first()->logo }}" alt="Sport" /> {{ $champ->name }}
+              <img src="{{ App\Helpers\ViewHelper::getImagePathFromId($champ->sport()->first()->logo) }}" alt="Sport" /> {{ $champ->name }}
               </a>
             </span>
             <span class="col-md-3 pull-right"><a href="{{ URL::to('view/championship/' . $champ->id) }}" class="btn btn-info moreindex">{{ trans('general.more') }}</a></span>

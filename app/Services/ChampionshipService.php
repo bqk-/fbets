@@ -53,12 +53,13 @@ class ChampionshipService
             throw new MissingArgumentException('class');
         }
 
-        if(!is_int($sport) || $sport <= 0)
+        if($sport <= 0)
         {
             throw new InvalidArgumentException('sport', $sport);
         }
 
-        return $this->_championshipRepository->Create($name, $class, $sport);
+        $id = $this->_championshipRepository->Create($name, $class, $sport);
+        return $this->_championshipRepository->Get($id);
     }
 
     public function GetAllWithGames()
