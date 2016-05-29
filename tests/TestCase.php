@@ -21,7 +21,7 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
     {
         parent::setUp();
 
-        $this->baseUrl = 'http://homestead.app';
+        $this->baseUrl = 'http://localhost';
         $this->app->singleton(
                 'App\Repositories\Contracts\IChampionshipRepository', 
                 'Mock\MockChampionshipRepository'
