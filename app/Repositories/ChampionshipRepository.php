@@ -43,6 +43,7 @@ class ChampionshipRepository implements IChampionshipRepository
         $championship->type = $class;
         $championship->id_sport = $sport;
         $championship->params = serialize(array());
+        $championship->active = 1;
         $championship->save();
 
         return $championship->id;
