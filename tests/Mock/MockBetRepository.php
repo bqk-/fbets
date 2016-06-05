@@ -57,4 +57,9 @@ class MockBetRepository implements \App\Repositories\Contracts\IBetRepository
         }
     }
 
+    public function GetUserBetForGame($idGame, $userId)
+    {
+        //
+    }
+
 }

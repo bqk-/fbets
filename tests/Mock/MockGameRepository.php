@@ -63,4 +63,10 @@ class MockGameRepository implements \App\Repositories\Contracts\IGameRepository
     {
         return new \Illuminate\Database\Eloquent\Collection($this->games);
     }
+
+    public function SaveRates($idGame, $rHome, $rDraw, $rVisit)
+    {
+        //
+    }
+
 }
