@@ -20,41 +20,87 @@
           @endif
                 <li class="list-group-item" style="border:0">
                   <div class="row">
-                    <div class="col-md-2" style="padding:0;">
-                        <img src="{{ \App\Helpers\ViewHelper::getImagePathFromId($game->team1()->first()->logo) }}"
-                             alt="{{ $game->team1()->first()->name }}" /> {{ $game->team1()->first()->name }}
-                    </div>
-                    <div class="col-md-2 bets-input">
-                        <p class="text-center">
 
-                          @if(\App\Helpers\DateHelper::getTimestampFromSqlDate($game->date) > time() && !array_key_exists($game->id, $bets))
-                            <small>
-                              <input type="text"
-                                     min="0"
-                                     class="text-center"
-                                     name="games[{{$game->id}}][state]"
-                                     id="games[{{$game->id}}][state]" />
+                          @if(!array_key_exists($game->id, $bets))
+                            <a href="{{ URL::to('bet/' .  $game->id . '/' . 
+                                        \App\Models\Types\GameStates::HOME) }}">
+                                  <div class="col-md-2 team" data-team="{{ $game->team1()->first()->id }}">
+                                    <div class="row">
+                                      <div class="col-md-4"><img style="width: 32px; height: 32px;" src="{{ \App\Helpers\ViewHelper::getImagePathFromId($game->team1()->first()->logo) }}"
+                                         alt="{{ $game->team1()->first()->name }}" /> </div>
+                                    <div class="col-md-8">{{ $game->team1()->first()->name }} <br> 
+                                        <small><span class="glyphicon glyphicon-stats"></span>
+                                            {{ $rates[$game->id]->HomeRate }}</small>
+                                    </div>
+                                  </div>
+                                </div>
+                              </a>
+                      
+                            <a href="{{ URL::to('bet/' .  $game->id . '/' . 
+                                        \App\Models\Types\GameStates::DRAW) }}">
+                                <div class="col-md-2 bets-input team">
+                                    <p class="text-center">
+                                        <small class="text-muted">
+                                                {{ trans('general.draw') }} <br> 
+                                                <small><span class="glyphicon glyphicon-stats"></span>
+                                                    {{ $rates[$game->id]->DrawRate }}</small>
+                                        </small>
+                                    </p>
+                                </div>
+                            </a>
+                          
+                        <a href="{{ URL::to('bet/' .  $game->id . '/' . 
+                                  \App\Models\Types\GameStates::VISITOR) }}">
+                            <div class="col-md-2 team" data-team="{{ $game->team2()->first()->id }}">
+                                <div class="row text-right">
+                                    <div class="col-md-8">{{ $game->team2()->first()->name }} <br> 
+                                        <small><span class="glyphicon glyphicon-stats"></span>
+                                            {{ $rates[$game->id]->VisitRate }}</small>
+                                    </div>
+                                    <div class="col-md-4"><img style="width: 32px; height: 32px;" src="{{ \App\Helpers\ViewHelper::getImagePathFromId($game->team2()->first()->logo) }}"
+                                         alt="{{ $game->team2()->first()->name }}" /></div>
+                                </div>
+                            </div>
+                          </a>
+                          @else
+                            <div class="col-md-2 
+                                 {{ $bets[$game->id]->bet == \App\Models\Types\GameStates::HOME ? 'bet-checked' : '' }}">
+                                <div class="row">
+                                    <div class="col-md-4"><img style="width: 32px; height: 32px;" src="{{ \App\Helpers\ViewHelper::getImagePathFromId($game->team1()->first()->logo) }}"
+                                                               alt="{{ $game->team1()->first()->name }}" /> </div>
+                              <div class="col-md-8">{{ $game->team1()->first()->name }} <br> 
+                                  <small><span class="glyphicon glyphicon-stats"></span>
+                                      {{ $rates[$game->id]->HomeRate }}</small>
+                              </div>
+                                </div>
+                            </div>
 
-                            </small>
-                          <?php $needBtn = true; ?>
-                          @elseif(\App\Helpers\DateHelper::getTimestampFromSqlDate($game->date) < time())
-                            <small>{{ trans('general.noresultindex') }}</small><br />
+                            <div class="col-md-2 bets-input 
+                                 {{ $bets[$game->id]->bet == \App\Models\Types\GameStates::DRAW ? 'bet-checked' : '' }}">
+                                <p class="text-center">
+                                    <small class="text-muted">
+                                         {{ trans('general.draw') }} <br> 
+                                         <small><span class="glyphicon glyphicon-stats"></span>
+                                             {{ $rates[$game->id]->DrawRate }}</small>
+                                    </small>
+                                </p>
+                            </div>
+                          
+                            <div class="col-md-2 
+                                 {{ $bets[$game->id]->bet == \App\Models\Types\GameStates::VISITOR ? 'bet-checked' : '' }}">
+                                <div class="row">
+                                    <div class="col-md-8 text-right">{{ $game->team2()->first()->name }} <br> 
+                                        <small><span class="glyphicon glyphicon-stats"></span>
+                                            {{ $rates[$game->id]->VisitRate }}</small>
+                                    </div>
+                                    <div class="col-md-4"><img style="width: 32px; height: 32px;" src="{{ \App\Helpers\ViewHelper::getImagePathFromId($game->team2()->first()->logo) }}"
+                                         alt="{{ $game->team2()->first()->name }}" /></div>
+                                </div>
+                            </div>
                           @endif
-                          @if(array_key_exists($game->id, $bets))
-                            <small class="text-muted">{{ trans('general.yourbet') }}:
-                                {{ $bets[$game->id]->state }}
-                            </small>
-                          @endif
-                        </p>
-                    </div>
-                    <div class="col-md-2" style="padding:0;">
-                        <p class="text-right">{{ $game->team2()->first()->name }}
-                            <img src="{{ \App\Helpers\ViewHelper::getImagePathFromId($game->team2()->first()->logo) }}"
-                                 alt="{{ $game->team2()->first()->name }}" />
-                        </p>
-                    </div>
+
                     <div class="col-md-3 text-center">
-                        <img src="{{ \App\Helpers\ViewHelper::getImagePathFromId($game->championship()->first()->sport()->first()->logo) }}" alt="Sport" />
+                        <img style="width: 32px; height: 32px;" src="{{ \App\Helpers\ViewHelper::getImagePathFromId($game->championship()->first()->sport()->first()->logo) }}" alt="Sport" />
                         {{ $game->name }}
                     </div>
                     <div class="col-md-2">
@@ -72,7 +118,7 @@
             </ul>
         @endif
         @if($needBtn)
-                <input class="btn btn-info center-block" type="submit" value="{{ trans('forms.validatebet') }}" />
+        <div class="bet-button"><input class="btn btn-info center-block" type="submit" value="{{ trans('forms.validatebet') }}" /></div>
         @endif
         {!! Form::close() !!}
       @else

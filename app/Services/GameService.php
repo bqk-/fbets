@@ -142,4 +142,10 @@ class GameService
     {
         return $this->_gameRepository->GetAllGames($idChamp);
     }
+
+    public function SaveRates($idGame, $rHome, $rDraw, $rVisit)
+    {
+        return $this->_gameRepository->SaveRates($idGame, $rHome, $rDraw, $rVisit);
+    }
+
 }

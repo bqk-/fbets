@@ -3,6 +3,8 @@
 interface IBetRepository
 {
 
+    public function GetUserBetForGame($idGame, $userId);
+
     public function MarkAsDone($betId, $status);
 
     public function GetBetsToProcessOnGame($gameId);

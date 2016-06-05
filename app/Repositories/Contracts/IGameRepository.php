@@ -3,6 +3,8 @@
 interface IGameRepository
 {
 
+    public function SaveRates($idGame, $rHome, $rDraw, $rVisit);
+
     public function GetAllGames($idChamp);
 
     public function Create($teamh, $teamv, $champId, $date);

@@ -114,4 +114,13 @@ class GameRepository implements IGameRepository
         return Game::where('id_championship', '=', $idChamp)->get();
     }
 
+    public function SaveRates($idGame, $rHome, $rDraw, $rVisit)
+    {
+        $g = $this->Get($idGame);
+        $g->rate_home = $rHome;
+        $g->rate_draw = $rDraw;
+        $g->rate_visit = $rVisit;
+        $g->save();
+    }
+
 }

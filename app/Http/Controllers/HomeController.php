@@ -51,8 +51,18 @@ class HomeController extends Controller {
         {
             $games = $this->_gameService->GetNext7DaysGames();
             $bets = $this->_betService->GetCurrentUserBetsForNext7Days();
-
-            return View::make('home/index', array('games' => $games, 'bets' => $bets));
+            $rates = array();
+            
+            
+            foreach ($games as $g)
+            {
+                $r = $this->_betService->GetRates($g->id);
+                $rates[$g->id] = $r;
+            }
+            
+            return View::make('home/index', array('games' => $games, 
+                'bets' => $bets,
+                'rates' => $rates));
         }
 
         return View::make('home/index');
@@ -398,5 +408,16 @@ class HomeController extends Controller {
                 'error',
                 trans('alert.correcterrors')
             )->withErrors($validator)->withInput();
+    }
+    
+    public function getBet($game, $state)
+    {
+        if(Auth::check())
+        {
+            $this->_betService->Create($game, $state);
+            return Redirect::to('/');
+        }
+    
+        return Redirect::to('/login')->with('error', trans('alert.needlogin'));
     }
 }

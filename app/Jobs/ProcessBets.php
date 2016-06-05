@@ -125,6 +125,8 @@ class ProcessBets extends Job implements ShouldQueue
                 $this->UserService->RemovePoints($bet->id_user, ceil($this->MAXPOINTS * $ratesArray[$stateBet]));
                 $this->BetService->MarkAsDone($bet->id, \App\Models\Types\BetStates::LOOSE);
             }    
+            
+            $this->GameService->SaveRates($bet->id_game, $rates->HomeRate, $rates->DrawRate, $rates->VisitRate);
         }
     }
 }

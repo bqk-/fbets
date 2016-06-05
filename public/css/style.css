@@ -87,3 +87,27 @@ footer {
 .users_actual {
     height: 24px;
 }
+
+.team {
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.team:hover {
+    background-color: lightgreen;
+}
+
+.bet-button {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+}
+
+.bet-checked {
+    background-color: lightgreen;
+    border-radius: 3px;
+}
+
+.text-small {
+    font-size: 8px;
+}

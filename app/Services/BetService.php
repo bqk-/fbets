@@ -2,16 +2,22 @@
 
 use App\Repositories\Contracts\IBetRepository;
 use App\Services\Contracts\ICurrentUser;
+use App\Repositories\Contracts\IGameRepository;
+use App\Helpers\DateHelper;
 
 class BetService
 {
     private $_betRepository;
     private $_currentUser;
-
-    public function __construct(IBetRepository $betRepository, ICurrentUser $currentUser)
+    private $_gameRepository;
+    
+    public function __construct(IBetRepository $betRepository, 
+            ICurrentUser $currentUser, 
+            IGameRepository $gameRepository)
     {
         $this->_betRepository = $betRepository;
         $this->_currentUser = $currentUser;
+        $this->_gameRepository = $gameRepository;
     }
     
     public function Get($id)
@@ -53,6 +59,22 @@ class BetService
 
     public function Create($idGame, $bet)
     {
+        $game = $this->_gameRepository->Get($idGame);
+        if($game == null)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Cannot get game: ' . $idGame);
+        }
+        
+        if(DateHelper::getTimestampFromSqlDate($game->date) <= time())
+        {
+            throw new \App\Exceptions\InvalidOperationException('Game time passed.');
+        }
+        
+        if($this->GetUserBetForGame($idGame)->count() > 0)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Already betted on that.');
+        }
+        
         return $this->_betRepository->Create($bet, $idGame, $this->_currentUser->GetId());
     }
 
@@ -179,6 +201,11 @@ class BetService
     public function GetBetsToProcessOnGame($gameId)
     {
         return $this->_betRepository->GetBetsToProcessOnGame($gameId);
+    }
+
+    public function GetUserBetForGame($idGame)
+    {
+        return $this->_betRepository->GetUserBetForGame($idGame, $this->_currentUser->GetId());
     }
 
 }
