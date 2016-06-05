@@ -126,19 +126,20 @@
       @endif
       </div>
     @else
+    <h1 class="herotitle">{{ trans('general.hometitle') }}</h1>
     <div id="Welcome" class="col-md-offset-2 col-md-8">
-      <h1>{{ trans('general.hometitle') }}</h1>
+      <h3>{{ trans('general.homecatch') }}</h3>
       <p>{{ trans('general.homemessage') }}</p>
       
+      <div class="col-md-4 col-md-offset-3 registerHome">
+         <a href="{{ URL::to('register') }}"><button class="btn btn-info btn-lg welcbut">{{ trans('general.register') }}</button></a>
+      </div>
+
       <div class="col-md-4 registerHome">
-         <a href="{{ URL::to('register') }}"><button class="btn btn-info btn-lg">{{ trans('general.register') }}</button></a>
+        <a href="{{ URL::to('login') }}"><button class="btn btn-info btn-lg welcbut">{{ trans('general.login') }}</button></a>
       </div>
 
-      <div class="col-md-4 col-md-offset-2 registerHome">
-        <a href="{{ URL::to('login') }}"><button class="btn btn-info btn-lg">{{ trans('general.login') }}</button></a>
-      </div>
-
-    </div>
+    </div>  
     @endif
   </div>
 @stop

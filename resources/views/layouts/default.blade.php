@@ -15,9 +15,6 @@
  
  <body>
   <div class="container-fluid  maincontainer">
-  
-    <div class="background">
-    </div>
     <div class="maincontent">
       @if(Session::has('success'))
       <div class="alert alert-success">

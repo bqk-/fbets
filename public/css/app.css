@@ -12,14 +12,14 @@ html {
   position: absolute;
   top: 10%;
   left: 50%;
-  -webkit-transform: translate(-50%, 0);
   transform: translate(-50%, 0);
   padding: 15px;
   display: inline-block;
   border: 3px solid white;
   font-family: "Lobster";
   font-size: 7em;
-  color: white; }
+  color: white;
+  white-space: nowrap; }
 
 body {
   /*background: #1a1a1a; */
@@ -30,7 +30,8 @@ body {
   min-width: 320px;
   height: 100%;
   position: relative;
-  font-size: 17px; }
+  font-size: 17px;
+  overflow: hidden; }
 
 .maincontainer {
   padding: 0;
@@ -83,22 +84,28 @@ body {
       background: #22313F;
       cursor: pointer; }
 
-.background {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background: url(../css/images/hero/blur.jpg) center 0 no-repeat fixed; }
-  .background .row {
-    margin: 0; }
-
 .maincontent {
   position: absolute;
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
-  background: rgba(26, 26, 26, 0.75); }
+  background: url(../css/images/hero/choice1.jpg) 0 no-repeat fixed;
+  background-size: cover; }
+
+#Welcome {
+  margin-top: 20%; }
+  #Welcome h3 {
+    font-family: Jura;
+    font-size: 3.2em;
+    color: #e3e0cf; }
+  #Welcome p {
+    color: #c5d5cb;
+    font-size: 1.2em; }
+  #Welcome .welcbut {
+    margin-top: 10%;
+    background-color: transparent;
+    border-color: #c5d5cb;
+    border-width: 1px; }
 
 /*# sourceMappingURL=app.css.map */

@@ -34,6 +34,7 @@ h1 {    }
 	font-family: "Lobster";
 	font-size: 7em;
 	color: white;
+	white-space: nowrap;
 
 }
 body 
@@ -47,6 +48,7 @@ body
 	height: 100%;
 	position: relative; 
 	font-size: 17px;
+	overflow: hidden;
 }
 
 .maincontainer
@@ -129,23 +131,35 @@ body
 	}
  }
 
- .background {
- 	position: absolute;
- 	width: 100%;
- 	height: 100%;
- 	margin: 0;
- 	padding: 0;
- 	background:  url(../css/images/hero/blur.jpg) center 0 no-repeat fixed;
- 	.row {
- 		margin: 0;
- 	}
- }
+  
+.maincontent {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background:  url(../css/images/hero/choice1.jpg)  0 no-repeat fixed;
+	background-size: cover;
+}
 
- .maincontent {
- 	position: absolute;
- 	width: 100%;
- 	height: 100%;
- 	margin: 0;
- 	padding: 0;
- 	background: rgba(26,26,26,0.75);
- }
+#Welcome {
+	margin-top: 20%;
+	
+	h3 {
+		font-family: Jura;
+		font-size: 3.2em;
+		color: $palette2;
+	}
+
+	p {
+		color: $palette4;
+		font-size: 1.2em;
+	}
+
+	.welcbut {
+		margin-top: 10%;
+		background-color: rgba(0,0,0,0);
+		border-color: $palette3;
+		border-width: 1px;
+	}
+}

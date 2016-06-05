@@ -14,7 +14,8 @@ return array(
     'login' => 'Log in',
     'myprofile' => 'My profile',
     'logout' => 'Log out',
-    'hometitle' => 'New generation of bets',
+    'hometitle' => 'Friendly Bets',
+    'homecatch' => 'Welcome to a new generation of bets !',
     'homemessage' => 'This website let you compet with others to become the best bettor, you can also just bet with your friends and compet with them, it is one step away
         from you, just log in or register to get started !',
     'week' => 'Week',
