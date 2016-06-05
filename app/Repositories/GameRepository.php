@@ -4,6 +4,7 @@ use App\Exceptions\NotFoundException;
 use App\Models\Data\Game;
 use App\Repositories\Contracts\IGameRepository;
 use App\Models\Data\Suggestion;
+use App\Models\Data\GameRelation;
 use \DB;
 
 class GameRepository implements IGameRepository
@@ -84,6 +85,42 @@ class GameRepository implements IGameRepository
         $s->date = $date;
         $s->state = 0;
         $s->save();
+    }
+
+    public function Create($teamh, $teamv, $champId, $date)
+    {
+        $g = new Game;
+        $g->team1 = $teamh;
+        $g->team2 = $teamv;
+        $g->id_championship = $champId;
+        $g->date = $date;
+        $g->save();
+        
+        return $g->id;
+    }
+
+    public function CreateRelation($outId, $localId)
+    {
+        $r = new GameRelation;
+        $r->local_id = $localId;
+        $r->out_id = $outId;
+        $r->save();
+        
+        return $r->id;
+    }
+
+    public function GetAllGames($idChamp)
+    {
+        return Game::where('id_championship', '=', $idChamp)->get();
+    }
+
+    public function SaveRates($idGame, $rHome, $rDraw, $rVisit)
+    {
+        $g = $this->Get($idGame);
+        $g->rate_home = $rHome;
+        $g->rate_draw = $rDraw;
+        $g->rate_visit = $rVisit;
+        $g->save();
     }
 
 }

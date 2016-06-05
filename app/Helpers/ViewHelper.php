@@ -2,7 +2,7 @@
 
 use App\Models\Data\Bet;
 use App\Models\Data\Score;
-use \URL;
+use App\Models\Data\Image;
 
 class ViewHelper {
     public static function getPointsFromScore(Score $score, Bet $bet)
@@ -42,6 +42,12 @@ class ViewHelper {
 
     public static function getImagePathFromId($id)
     {
-        return URL::to('/') . '/images/i'. $id . '.png';
+        $img = Image::find($id);
+        if($img == null)
+        {
+            return "";
+        }
+        
+        return \URL::to('uploads') . '/' . $id . '.' . $img->ext;
     }
 }

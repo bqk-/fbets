@@ -16,6 +16,12 @@
                         <a href="{{ URL::to('admin/view-games/' . $championship->id) }}" >View games</a>
                         <a href="{{ URL::to('admin/drop-games/' . $championship->id) }}" >Drop games</a>
                         <a href="{{ URL::to('admin/reload-games/' . $championship->id) }}" >Reload games</a>
+                        <a href="{{ URL::to('admin/refresh-games/' . $championship->id) }}" >Refresh games</a>
+                        @if($championship->active == 1)
+                            <a class="glyphicon text-success" href="{{ URL::to('admin/toggle-champ/' . $championship->id) }}">Active</a>
+                        @else
+                            <a class="glyphicon text-danger" href="{{ URL::to('admin/toggle-champ/' . $championship->id) }}">Inactive</a>
+                        @endif
                     </div>
                 </div>
             </div>

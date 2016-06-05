@@ -2,6 +2,9 @@
 
 interface IChampionshipRepository
 {
+
+    public function HasGames($champId);
+
     public function Get($id);
 
     public function GetAll();

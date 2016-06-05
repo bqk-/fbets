@@ -5,7 +5,7 @@ use \Auth;
 
 class OutOfRangeException extends Exception
 {
-    private $message;
+    protected $message;
 
     public function __construct($fieldName, Exception $previous = null)
     {

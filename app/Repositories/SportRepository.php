@@ -1,6 +1,7 @@
 <?php namespace App\Repositories;
 
 use App\Repositories\Contracts\ISportRepository;
+use App\Models\Data\Sport;
 
 class SportRepository implements ISportRepository
 {

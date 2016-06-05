@@ -39,7 +39,6 @@ class HomeController extends Controller {
             UserService $userService,
             SportService $sportService)
     {
-        $this->beforeFilter('csrf', array('on' => array('post')));
         $this->_gameService = $gameService;
         $this->_betService = $betService;
         $this->_userService = $userService;
@@ -52,8 +51,18 @@ class HomeController extends Controller {
         {
             $games = $this->_gameService->GetNext7DaysGames();
             $bets = $this->_betService->GetCurrentUserBetsForNext7Days();
-
-            return View::make('home/index', array('games' => $games, 'bets' => $bets));
+            $rates = array();
+            
+            
+            foreach ($games as $g)
+            {
+                $r = $this->_betService->GetRates($g->id);
+                $rates[$g->id] = $r;
+            }
+            
+            return View::make('home/index', array('games' => $games, 
+                'bets' => $bets,
+                'rates' => $rates));
         }
 
         return View::make('home/index');
@@ -65,15 +74,20 @@ class HomeController extends Controller {
         {
             $bets = $this->_betService->GetUserPendingBets();
 
-            foreach (Input::get('games') as $id => $score) if($score['team1']!==''&&$score['team2']!=='') {
-                $g = $this->_gameService->Get($id);
-                 if(DateHelper::getTimestampFromSqlDate($g->date) < time() || array_key_exists($g->id, $bets) ||
-                     DateHelper::getTimestampFromSqlDate($g->date) > time() + (60*60*24*7))
-                    continue;
-
-                $this->_betService->Create($id, abs($score['team1']), abs($score['team2']));
+            foreach (Input::get('games') as $id => $score) 
+            {
+                if($score['state']!=='') 
+                {
+                    $g = $this->_gameService->Get($id);
+                    if(DateHelper::getTimestampFromSqlDate($g->date) < time() || array_key_exists($g->id, $bets) ||
+                        DateHelper::getTimestampFromSqlDate($g->date) > time() + (60*60*24*7))
+                   {
+                       continue;   
+                   }
+                }
             }
 
+            $this->_betService->Create($id, $score['state']);
             return Redirect::to('/')->with('success',trans('general.betstaken'));
         }
 
@@ -394,5 +408,16 @@ class HomeController extends Controller {
                 'error',
                 trans('alert.correcterrors')
             )->withErrors($validator)->withInput();
+    }
+    
+    public function getBet($game, $state)
+    {
+        if(Auth::check())
+        {
+            $this->_betService->Create($game, $state);
+            return Redirect::to('/');
+        }
+    
+        return Redirect::to('/login')->with('error', trans('alert.needlogin'));
     }
 }

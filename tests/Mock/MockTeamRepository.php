@@ -8,8 +8,20 @@
 
 class MockTeamRepository implements \App\Repositories\Contracts\ITeamRepository
 {
-    public function Create($name, $idlogo, $sport) {
+    private $teams = array();
+    private $relations = array();
+    private $id = 1;
+    
+    public function Create($name, $idlogo, $sport) 
+    {
+        $t = new \App\Models\Data\Team();
+        $t->name = $name;
+        $t->logo = $idlogo;
+        $t->id_sport = $sport;
+        $t->id = ++$this->id;
+        $this->teams[$t->id] = $t;
         
+        return $t->id;
     }
 
     public function GetAllTeamsForDropdown() {
@@ -17,7 +29,9 @@ class MockTeamRepository implements \App\Repositories\Contracts\ITeamRepository
     }
 
     public function GetRelations($id) {
-        
+        if(key_exists($id, $this->relations)){
+            return $this->relations[$id];
+        }
     }
 
     public function GetTeamsForDropdownBySport($sportid) {
@@ -28,8 +42,22 @@ class MockTeamRepository implements \App\Repositories\Contracts\ITeamRepository
         
     }
 
-    public function RegisterRelation($localId, $outId, $champId) {
-        
+    public function RegisterRelation($localId, $outId, $champId) 
+    {
+        $r = new \App\Models\Data\TeamRelation;
+        $r->local_id = $localId;
+        $r->out_id = $outId;
+        $r->championship_id = $champId;
+        $r->id = ++$this->id;
+        $this->relations[$champId][$outId] = $localId;
+        return $r->id;
+    }
+
+    public function GetRelation($idExt, $idChamp)
+    {
+        if(key_exists($idChamp, $this->relations)){
+            return $this->relations[$idChamp][$idExt];
+        }
     }
 
 }

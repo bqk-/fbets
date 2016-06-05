@@ -21,11 +21,11 @@ Route::get('/404', function() {
 //TODO: Move to a viewController handling view event, championship, team, whatever
 Route::get('/view/{type?}/{id?}', function($type = null, $id = null)
 {
-    $serv2 = new \App\Services\ChampionshipService();
+    $serv2 = \App::make('\App\Services\ChampionshipService');
     switch ($type) {
         case 'championship':
             $champ = $serv2->GetWithGamesAndScores($id);
-            $serv = new \App\Services\BetService();
+            $serv = \App::make('\App\Services\BetService');
             $bets = $serv->GetUserBetsForChampionship($id);
 
             return View::make('view/championship',array('champ' => $champ, 'bets' => $bets));
@@ -40,27 +40,30 @@ Route::get('/view/{type?}/{id?}', function($type = null, $id = null)
     }
 });
 
-Route::when('*', 'csrf', array('post'));
+/*
+|--------------------------------------------------------------------------
+| Application Routes
+|--------------------------------------------------------------------------
+|
+| This route group applies the "web" middleware group to every route
+| it contains. The "web" middleware group is defined in your HTTP
+| kernel and includes session state, CSRF protection, and more.
+|
+*/
 
-Route::controller('ajax', 'App\Http\Controllers\AjaxController');
+Route::group(['middleware' => ['web']], function () {
+    Route::controller('ajax', 'App\Http\Controllers\AjaxController');
 
-Route::controller('group', 'App\Http\Controllers\GroupController');
+    Route::controller('javascript', 'App\Http\Controllers\JavascriptController');
 
-Route::controller('javascript', 'App\Http\Controllers\JavascriptController');
-
-//ADMIN ROUTES + FILTER
-Route::group(['prefix' => 'admin'], function () {
-    Route::get('users', function ()    {
-        // Matches The "/admin/users" URL
+    Route::group(['middleware' => ['admin']], function () {
+        Route::controller('admin', 'App\Http\Controllers\AdminController');
     });
-});
-Route::when('admin*', 'admin');
-Route::filter('admin', function()
-{
-    if(!(Auth::check() && in_array(Auth::user()->id, App\Http\Controllers\AdminController::$admins)))
-        return Redirect::to('/');
-});
-Route::controller('admin', 'App\Http\Controllers\AdminController');
+    
+    Route::group(['middleware' => ['auth']], function () {
+        Route::controller('group', 'App\Http\Controllers\GroupController');
+    });
 
-//What's left
-Route::controller('/', 'App\Http\Controllers\HomeController');
+    //What's left
+    Route::controller('/', 'App\Http\Controllers\HomeController');
+});

@@ -5,11 +5,11 @@ use \Auth;
 
 class InvalidArgumentException extends Exception
 {
-    private $message;
+    protected $message;
 
     public function __construct($fieldName, $value, Exception $previous = null)
     {
-        $this->message = 'Invalid value for argument: ' . $fieldName . ' = ' . var_dump($value) . ' (User: ' .
+        $this->message = 'Invalid value for argument: ' . $fieldName . ' = ' . var_export($value, true) . ' (User: ' .
             Auth::user()
         ->id .
             ')';

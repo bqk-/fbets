@@ -45,14 +45,14 @@ class AdminService
     public function GetAvailableClasses()
     {
         $dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'Models' . DIRECTORY_SEPARATOR
-            . 'Admin';
+            . 'Admin' . DIRECTORY_SEPARATOR . 'Tournament';
         $dh  = opendir($dir);
 
         $files = array();
         while (false !== ($filename = readdir($dh))) {
-            if(substr($filename, 0, 1) != 'I' && filetype($dir . DIRECTORY_SEPARATOR . $filename) != 'dir')
+            if(strtolower(substr($filename, 0, 1)) != 'i' && filetype($dir . DIRECTORY_SEPARATOR . $filename) != 'dir')
             {
-                $files[$filename] = substr($filename, 0, -4);
+                $files[substr($filename, 0, -4)] = substr($filename, 0, -4);
             }
         }
 
@@ -65,50 +65,9 @@ class AdminService
         $className = $this->GetFullClassName($champ->type);
         $reflectionObj = new \ReflectionClass($className);
 
-        if($champ->params == null)
-        {
-            $workingClass = $reflectionObj->newInstanceArgs(array());
-        }
-        else
-        {
-            $workingClass = $reflectionObj->newInstanceArgs($champ->params);
-        }
+        $workingClass = $reflectionObj->newInstanceArgs($champ->params);
 
         return $workingClass;
-    }
-
-    public function UpdateAllActiveChampionships()
-    {
-        \Artisan::call('down');
-        file_put_contents(\Config::get('view.paths')[0].'/ajax/progress.php', '0');
-
-        $championships = $this->_championshipRepository->GetAllActive();
-        $total = count($championships);
-        $done = 0;
-        foreach($championships as $championship)
-        {
-            $workingClass = $this->GetWorkingClassForChampionship($championship->id);
-            $games = $this->_gameRepository->GetGamesWithNoScore($championship->id);
-            foreach($games as $game)
-            {
-                if($game->date != $workingClass->getGameTime($game->team1, $game->team2))
-                {
-                    $this->_gameRepository->UpdateGameTime($game->id, $workingClass->getGameTime($game->team1,
-                        $game->team2));
-                }
-
-                $score = $workingClass->getScore($game->team1, $game->team2);
-                if($score)
-                {
-                    $this->_scoreRepository->AddScore($game->id, explode('-',$score)[0], explode('-',$score)[1]);
-                }
-            }
-            file_put_contents(\Config::get('view.paths')[0].'/ajax/progress.php', round($done++/$total*100));
-        }
-
-        \Artisan::call('up');
-
-        return $done;
     }
 
     public function GetChampionshipConstructorParams($id)
@@ -116,9 +75,29 @@ class AdminService
         $championship = $this->_championshipRepository->Get($id);
         $arrayParams = $this->GetConstructorParamsFromName($championship->type);
 
-        return new ChampionshipConstructorParams($championship, $arrayParams, $championship);
+        return new ChampionshipConstructorParams($championship, $arrayParams, $championship->params);
     }
+    
+    public function UpdateChampionshipParams($id, array $arrayParams)
+    {
+        if(!is_array($arrayParams))
+        {
+            throw new InvalidArgumentException('array of params', $arrayParams);
+        }
 
+        $this->_championshipRepository->UpdateChampionshipParams($id, $arrayParams);
+    }
+    
+    public function DropGamesForChampionship($id)
+    {
+        return $this->_gameRepository->DropGamesForChampionship($id);
+    }
+    
+    public function ActivateChampionship($id)
+    {
+        $this->_championshipRepository->ActivateChampionship($id);
+    }
+    
     public function GetConstructorParamsFromClassname($name)
     {
         return $this->GetConstructorParamsFromName($name);
@@ -126,7 +105,7 @@ class AdminService
 
     private function GetFullClassName($name)
     {
-        return 'App\Models\Admin\\'. $name;
+        return 'App\Models\Admin\Tournament\\'. $name;
     }
 
     private function GetConstructorParamsFromName($name)

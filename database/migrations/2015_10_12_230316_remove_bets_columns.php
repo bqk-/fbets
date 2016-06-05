@@ -16,12 +16,12 @@ class RemoveBetsColumns extends Migration {
         {
             $table->dropColumn(['right1', 'right2', 'score1', 'score2']);
             $table->integer('bet')->after('id_game');
+            $table->integer('state')->after('bet');
         });
 
         Schema::table('results', function($table)
         {
             $table->integer('state')->after('team2');
-            $table->integer('prediction')->after('team2');
         });
 	}
 
@@ -38,12 +38,12 @@ class RemoveBetsColumns extends Migration {
             $table->integer('right1')->after('id_game');
             $table->integer('score2')->after('id_game');
             $table->integer('score1')->after('id_game');
-            $table->dropColumn('bet');
+            $table->dropColumn(['bet', 'state']);
         });
 
         Schema::table('results', function($table)
         {
-            $table->dropColumn(['state', 'prediction']);
+            $table->dropColumn(['state']);
         });
 	}
 

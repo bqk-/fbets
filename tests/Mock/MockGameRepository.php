@@ -8,12 +8,17 @@
 
 class MockGameRepository implements \App\Repositories\Contracts\IGameRepository
 {
+    private $games = array();
+    private $id = 1;
+    
     public function DropGamesForChampionship($id) {
         
     }
 
     public function Get($id) {
-        
+        if(key_exists($id, $this->games)){
+            return $this->games[$id];
+        }
     }
 
     public function GetGamesWithNoScore($championship = null) {
@@ -34,6 +39,34 @@ class MockGameRepository implements \App\Repositories\Contracts\IGameRepository
 
     public function UpdateGameTime($idGame, $getGameTime) {
         
+    }
+
+    public function Create($teamh, $teamv, $champId, $date)
+    {
+        $s = new \App\Models\Data\Game();
+        $s->team1 = $teamh;
+        $s->team2 = $teamv;
+        $s->id_champ = $champId;
+        $s->date = $date;    
+        $s->id = ++$this->id;
+        $this->games[$s->id] = $s;
+        
+        return $this->id;
+    }
+
+    public function CreateRelation($outId, $localId)
+    {
+        
+    }
+    
+    public function GetAllGames($idChamp)
+    {
+        return new \Illuminate\Database\Eloquent\Collection($this->games);
+    }
+
+    public function SaveRates($idGame, $rHome, $rDraw, $rVisit)
+    {
+        //
     }
 
 }

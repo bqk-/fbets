@@ -34,6 +34,11 @@ class AppServiceProvider extends ServiceProvider {
             );
             
             $this->app->bind(
+                'App\Services\Contracts\IImageService',
+                'App\Services\ImageService'
+            );
+            
+            $this->app->bind(
                 'App\Services\Contracts\ICurrentUser',
                 'App\Models\Services\CurrentUser'
             );

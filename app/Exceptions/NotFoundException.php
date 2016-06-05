@@ -1,10 +1,11 @@
 <?php namespace App\Exceptions;
 
 use Exception;
+use \Auth;
 
 class NotFoundException extends Exception
 {
-    private $message;
+    protected $message;
 
     public function __construct($objectName, $field, $value, Exception $previous = null)
     {

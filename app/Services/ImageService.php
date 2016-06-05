@@ -1,7 +1,7 @@
 <?php namespace App\Services;
 
 use App\Models\Data\Image;
-use App\Models\Data\Game;
+use App\Services\Contracts\IImageService;
 
 /**
  * Created by PhpStorm.
@@ -10,8 +10,17 @@ use App\Models\Data\Game;
  * Time: 12:28
  */
 
-class ImageService
+class ImageService implements IImageService
 {
+    private $uploadPath;
+    private $storagePath;
+        
+    public function __construct()
+    {
+        $this->uploadPath = storage_path('app');
+        $this->storagePath = public_path('uploads');
+    }
+    
     public function Get($id)
     {
         $image = Image::find($id);
@@ -32,42 +41,64 @@ class ImageService
     public function UploadLogo($url)
     {
         $data = file_get_contents($url);
-        $file = fopen(storage_path().'/temp.img', "w+");
+        $file = fopen($this->uploadPath . '/temp.img', "w+");
         fputs($file, $data);
         fclose($file);
-        list($width, $height, $ext) = getimagesize(storage_path().'/temp.img');
-        if($width > $height && 32 < $height)
-        {
-            $newheight = $height / ($width / 32);
-        }
-        else if ($width < $height && 32 < $width)
-        {
-            $newwidth = $width / ($height / 32);
-        }
-        else
-        {
-            $newwidth = $width;
-            $newheight = $height;
-        }
+        $ext = substr($url, strrpos($url, '.') + 1);
 
-        $thumb = imagecreatetruecolor(32, 32);
-        $source = imagecreatefromstring(file_get_contents(storage_path().'/temp.img'));
-        imagecopyresized($thumb, $source, 0, 0, 0, 0, 32, 32, $newwidth, $newheight);
-        imagepng($thumb, storage_path().'/temp32.png');
+        if($ext == 'png')
+        {
+            list($width, $height) = getimagesize($this->uploadPath . '/temp.img');
+            $i = new Image;
+            $i->w = $width;
+            $i->h = $height;
+            $i->ext = 'png';
+            $i->save();
+
+            rename($this->uploadPath . '/temp.img', $this->storagePath . '/' . $i->id . '.' . $i->ext);
+            return $i->id;
+        }
+        
+        if($ext == 'svg')
+        {
+            $i = new Image;
+            $i->w = 0;
+            $i->h = 0;
+            $i->ext = 'svg';
+            $i->save();
+
+            rename($this->uploadPath . '/temp.img', $this->storagePath . '/' . $i->id . '.' . $i->ext);
+            return $i->id;
+        }
+        
+        list($width, $height) = getimagesize($this->uploadPath . '/temp.img');
+ 
+        $thumb = imagecreatetruecolor($width, $height);
+        $black = imagecolorallocate($thumb, 0, 0, 0);
+        imagecolortransparent($thumb, $black);
+        $source = imagecreatefromstring(file_get_contents($this->uploadPath . '/temp.img'));
+        imagecopyresized($thumb, $source, 0, 0, 0, 0, $width, $height, $width, $height);
+        imagepng($thumb, $this->uploadPath . '/temp32.png');
         $i = new Image;
-        $i->w = 32;
-        $i->h = 32;
+        $i->w = $width;
+        $i->h = $height;
         $i->ext = 'png';
         $i->save();
-        rename(storage_path().'/temp32.png', public_path().'/images/i'.$i->id.'.'.$i->ext);
-        unlink(storage_path().'/temp.img');
+        
+        rename($this->uploadPath . '/temp32.png', $this->storagePath . '/' . $i->id . '.' . $i->ext);
+        unlink($this->uploadPath . '/temp.img');
         return $i->id;
     }
 
     public function GetImagePath($id)
     {
-        $image = $this->Get($id);
-        return \URL::to('images') . '/i' . $image->id . $image->ext;
+        $img = Image::find($id);
+        if($img == null)
+        {
+            return "";
+        }
+        
+        return \URL::to('uploads') . '/' . $id . '.' . $img->ext;
     }
 
     public function GuessLogo($team)
@@ -79,15 +110,5 @@ class ImageService
             $id = intval(\DB::table('games')->where('team2', '=', $team)->max('logo2'));
             return $id;
         }
-    }
-
-    public function GetTeam1WithoutImage() 
-    {
-        return Game::where('logo1','=',0)->groupBy('team1')->get();
-    }
-
-    public function GetTeam2WithoutImage() 
-    {
-        return Game::where('logo2','=',0)->groupBy('team2')->get();
     }
 }

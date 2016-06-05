@@ -17,11 +17,7 @@ class UserService
             Contracts\ICurrentUser $user, 
             IUserRepository $userRepository)
     {
-        if($user->GetId() > 0)
-        {
-            $this->CurrentUser = $user;
-        }
-
+        $this->CurrentUser = $user;
         $this->UserRepository = $userRepository;
     }
 
@@ -90,13 +86,7 @@ class UserService
             Auth::login($this->UserRepository->MasterLogin($email));
         }
         
-        if(Auth::attempt(array('email' => $email, 'password' => $password), $remember))
-        {   
-            $this->CurrentUser = $this->app->make('Contracts\ICurrentUser');
-            return true;
-        }
-        
-        return false;
+        return Auth::attempt(array('email' => $email, 'password' => $password), $remember);
     }
 
     public function LogOut() 
@@ -219,6 +209,16 @@ class UserService
     public function UserExists($name) 
     {
         return $this->UserRepository->GetUserByPseudo($name) !== null;          
+    }
+
+    public function AddPoints($userId, $points)
+    {
+        $this->UserRepository->AddPoints($userId, $points);
+    }
+
+    public function RemovePoints($userId, $points)
+    {
+        $this->UserRepository->RemovePoints($userId, $points);
     }
 
 }

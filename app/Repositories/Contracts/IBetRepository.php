@@ -2,11 +2,18 @@
 
 interface IBetRepository
 {
+
+    public function GetUserBetForGame($idGame, $userId);
+
+    public function MarkAsDone($betId, $status);
+
+    public function GetBetsToProcessOnGame($gameId);
+
     public function Get($id);
 
     public function GetUserIncomingBets($id, $days = 0);
 
-    public function Create($score1, $score2, $idGame, $userId);
+    public function Create($bet, $idGame, $userId);
 
     public function GetAllForUser($id);
 

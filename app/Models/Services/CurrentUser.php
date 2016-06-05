@@ -80,4 +80,10 @@ class CurrentUser implements ICurrentUser
     {
         return $this->LastAction;
     }
+
+    public function LogUser($id)
+    {
+        throw new \App\Exceptions\InvalidOperationException('Testing only!');
+    }
+
 }

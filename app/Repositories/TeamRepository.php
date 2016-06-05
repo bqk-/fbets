@@ -1,10 +1,12 @@
 <?php namespace App\Repositories;
 
 use App\Repositories\Contracts\ITeamRepository;
+use App\Models\Data\Team;
+use App\Models\Data\TeamRelation;
 
 class TeamRepository implements ITeamRepository
 {
-    public function GetTeamsForDropdownBySport($sportid) 
+    public function GetTeamsForDropdownBySport($sportId) 
     {
         return Team::where('id_sport', '=', $sportId)->lists('name', 'id');
     }
@@ -39,10 +41,21 @@ class TeamRepository implements ITeamRepository
         return $r->id;
     }
     
-    public function GetRelations($id)
+    public function GetRelation($idExt, $id_champ)
     {
-        return TeamRelation::where('championship_id', '=', $id)->lists('local_id', 'out_id');
+        return TeamRelation::
+                where('championship_id', '=', $id_champ)
+                ->where('out_id', '=', $idExt)
+                ->first();
     }
+
+    public function GetRelations($idChamp)
+    {
+        return TeamRelation::
+                where('championship_id', '=', $idChamp)
+                ->lists('local_id', 'out_id');
+    }
+
 }
 
 

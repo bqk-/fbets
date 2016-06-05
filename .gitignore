@@ -1,9 +1,13 @@
-/node_modules
-/storage
-/vendor
-.git
-/nbproject
+vendor/
+node_modules/
+
+# Laravel 5 & Lumen specific
+.env.*.php
+.env.php
 .env
-.env.*
+.env.example
+public/uploads
+
+# Project specific
 deploy*
-npm*
+/nbproject

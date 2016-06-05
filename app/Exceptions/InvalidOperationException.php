@@ -5,13 +5,20 @@ use \Auth;
 
 class InvalidOperationException extends Exception
 {
-    private $message;
+    protected $message;
 
     public function __construct($operation, Exception $previous = null)
     {
-        $this->message = 'Invalid operation: ' . $operation . ' (User: ' . Auth::user()
+        if(Auth::check())
+        {
+            $this->message = 'Invalid operation: ' . $operation . ' (User: ' . Auth::user()
                 ->id .
             ')';
+        }
+        else
+        {
+            $this->message = 'Invalid operation: ' . $operation;
+        }
 
         parent::__construct($this->message,
             112,

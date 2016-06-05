@@ -1,6 +1,7 @@
 <?php namespace App\Repositories;
 
 use App\Repositories\Contracts\IUserRepository;
+use App\Models\Data\User;
 use \Hash;
 
 class UserRepository implements IUserRepository
@@ -32,6 +33,7 @@ class UserRepository implements IUserRepository
         $user->email    = $email;
         $user->display    = $display;
         $user->password = Hash::make($pass);
+        $user->points = 1000;
         $user->save();
         
         return $user->id;
@@ -105,5 +107,20 @@ class UserRepository implements IUserRepository
         $recover->delete();
         return $user;
     }
+
+    public function AddPoints($userId, $points)
+    {
+        $user = $this->GetUserById($userId);
+        $user->increment('points', $points);
+        $user->save();
+    }
+
+    public function RemovePoints($userId, $points)
+    {
+        $user = $this->GetUserById($userId);
+        $user->decrement('points', $points);
+        $user->save();
+    }
+
 }
 

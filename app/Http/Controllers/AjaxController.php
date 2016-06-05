@@ -23,8 +23,9 @@ class AjaxController extends Controller {
     */
     private $_groupService;
 
-    public function __construct(){
-        $this->_groupService = new GroupService();
+    public function __construct(GroupService $groupService)
+    {
+        $this->_groupService = $groupService;
     }
 
     //Not used anymore, keep it in case

@@ -30,18 +30,20 @@
                         </thead>
                         <tbody>
                         <?php $p = 1; ?>
-                        @foreach($page['users'] as $user)
-                            <tr @if(Auth::check() && $user->id == Auth::User()->id) class="info" @endif >
-                                <td>{{ $p++ }}</td>
-                                <td>{{ $user->pseudo }}</td>
-                                <td><div class="progress progress-striped" style="margin-top:6px;margin-bottom:-6px;">
-                                        <div class="progress-bar progress-bar-success" style="width:{{ $user->percent*100 }}%"></div>
-                                    </div></td>
-                                <td>{{ $user->percent*100 }}%</td>
-                                <td>{{ $user->points }}</td>
-                                <td>{{ $user->nb }}</td>
-                            </tr>
-                        @endforeach
+                        @if($page['users'] != null)
+                            @foreach($page['users'] as $user)
+                                <tr @if(Auth::check() && $user->id == Auth::User()->id) class="info" @endif >
+                                    <td>{{ $p++ }}</td>
+                                    <td>{{ $user->pseudo }}</td>
+                                    <td><div class="progress progress-striped" style="margin-top:6px;margin-bottom:-6px;">
+                                            <div class="progress-bar progress-bar-success" style="width:{{ $user->percent*100 }}%"></div>
+                                        </div></td>
+                                    <td>{{ $user->percent*100 }}%</td>
+                                    <td>{{ $user->points }}</td>
+                                    <td>{{ $user->nb }}</td>
+                                </tr>
+                            @endforeach
+                        @endif
                         </tbody>
                     </table>
                 </div>

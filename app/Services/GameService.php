@@ -3,8 +3,9 @@
 use App\Repositories\Contracts\IGameRepository;
 use App\Repositories\Contracts\IScoreRepository;
 use App\Repositories\Contracts\ISportRepository;
+use App\Repositories\Contracts\ITeamRepository;
+use App\Repositories\Contracts\IBetRepository;
 use Exception;
-use \Auth;
 
 /**
  * Created by PhpStorm.
@@ -19,16 +20,22 @@ class GameService
     private $_scoreRepository;
     private $_sportRepository;
     private $CurrentUser;
+    private $_teamRepository;
+    private $_betRepository;
 
     public function __construct(IGameRepository $gameRepository, 
             IScoreRepository $scoreRepository,
+            IBetRepository $betRepository,
             ISportRepository $sportRespository,
+            ITeamRepository $teamRepository,
             \App\Services\Contracts\ICurrentUser $currentUser)
     {
         $this->_gameRepository = $gameRepository;
         $this->_scoreRepository = $scoreRepository;
         $this->_sportRepository = $sportRespository;
+        $this->_teamRepository = $teamRepository;
         $this->CurrentUser = $currentUser;
+        $this->_betRepository = $betRepository;
     }
 
     public function Get($id)
@@ -41,10 +48,15 @@ class GameService
         return $this->_scoreRepository->GetForGame($id);
     }
 
-    public function AddScore($idGame, $score1, $score2)
+    public function AddScore($idGame, $score1, $score2, $state)
     {
         $game = $this->_gameRepository->Get($idGame);
-        $this->_scoreRepository->AddScore($game->Id, $score1, $score2);
+        if($game == null)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Cannot add score to unknow game');
+        }
+        
+        $this->_scoreRepository->AddScore($game->Id, $score1, $score2, $state);
 
         $this->UpdateBetsForGame($game, $s);
     }
@@ -62,31 +74,24 @@ class GameService
         $game->save();
     }
 
-    public function Create($game, $idChamp, $teamsId)
+    public function Create(\App\Models\Admin\TournamentClasses\Game $game, $idChamp, $relations)
     {
-        $g = new Game();
-        $g->id_championship = $idChamp;
-        $g->team1 = $teamsId[$game->team1];
-        $g->team2 = $teamsId[$game->team2];
-        $g->date = $game->date;
-        $g->save();
-        return $g->id;
-    }
-
-    public function CreateFromPost($team1, $team2, $event, $date, $time)
-    {
-        $g = new Game;
-        $g->team1 = $team1;
-        $g->team2 = $team2;
-        $g->id_championship = $event;
-        $g->date = $date.' '.$time.':00';
-        $g->save();
-        return $g->id;
-    }
-
-    public function DropGamesForChampionship($id)
-    {
-        return $this->_gameRepository->DropGamesForChampionship($id);
+        $id = $this->_gameRepository->Create($relations[$game->TeamHome->Id], 
+                $relations[$game->TeamVisit->Id],
+                $idChamp,
+                $game->Date);
+        
+        $this->_gameRepository->CreateRelation($game->Id, $id);
+        
+        if($game->Score != null)
+        {
+            $this->_scoreRepository->AddScore($id,
+                    $game->Score->TeamHome, 
+                    $game->Score->TeamVisit, 
+                    $game->Score->State);
+        }
+        
+        return $id;
     }
 
     public function GetNext7DaysGames()
@@ -126,6 +131,21 @@ class GameService
         $this->_gameRepository->Suggest($sport, $team1, 
                 $team2, $event, $date, 
                 $this->CurrentUser == null ? null : $this->CurrentUser->GetId());
+    }
+
+    public function GetGamesWithNoScore($champId)
+    {
+        return $this->_gameRepository->GetGamesWithNoScore($champId);
+    }
+    
+    public function GetAllGames($idChamp)
+    {
+        return $this->_gameRepository->GetAllGames($idChamp);
+    }
+
+    public function SaveRates($idGame, $rHome, $rDraw, $rVisit)
+    {
+        return $this->_gameRepository->SaveRates($idGame, $rHome, $rDraw, $rVisit);
     }
 
 }

@@ -39,4 +39,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function groups(){
         return $this->belongsToMany('App\Models\Data\Group', 'groups_users', 'id_user', 'id_group');
     }
+    
+    public function applications(){
+        return $this->hasMany('App\Models\Data\GroupApplication', 'id_user', 'id');
+    }
 }

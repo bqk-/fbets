@@ -15,6 +15,8 @@ interface ICurrentUser
     public function GetApplications();
     
     public function GetLastAction();
+    
+    public function LogUser($id);
 }
 
 

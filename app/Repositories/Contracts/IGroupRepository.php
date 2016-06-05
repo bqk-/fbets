@@ -3,11 +3,21 @@
 interface IGroupRepository
 {
 
+    public function AddGameToGroup($game, $group);
+
+    public function GroupHasGame($group, $game);
+
+    public function IsInGroup($iduser, $idgroup);
+
+    public function GetBetsForGroupAndGame($idgroup, $idgame);
+
+    public function GetGroupGames($id, $days);
+
     public function GetByName($name);
 
     public function Get($id);
     
-    public function CreateGroup($name, $description);
+    public function CreateGroup($name, $description, \DateTime $start, \DateTime $end);
 
     public function PutUserInGroup($user, $group);
     
@@ -17,11 +27,9 @@ interface IGroupRepository
     
     public function DeleteApplication($user, $group);
     
-    public function CreateNotification($iduser, $idgroup, $type);
+    public function CreateNotification($iduser, $idgroup, $type, $poll);
     
     public function CreateApplication($iduser, $idgroup, $from, $message);
-    
-    public function CreateApplicationPoll($application, $iduser, $idgroup);
     
     public function GetNotifications($idgroup, $limit = 20);
     

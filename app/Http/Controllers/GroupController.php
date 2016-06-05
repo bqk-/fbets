@@ -1,32 +1,27 @@
 <?php namespace App\Http\Controllers;
 
 use App\Services\GroupService;
+use App\Services\GameService;
+use App\Services\Contracts\ICurrentUser;
 use \Redirect;
 use \View;
 use \Auth;
 use \Validator;
 use \Input;
 
-class GroupController extends Controller {
-
-    /**
-     * Setup the layout used by the controller.
-     *
-     * @return void
-     */
+class GroupController extends Controller 
+{
     private $_groupService;
-
-    public function __construct(GroupService $groupService)
+    private $_gameService;
+    private $_currentUser;
+    
+    public function __construct(GroupService $groupService, 
+            GameService $gameService,
+            ICurrentUser $user)
     {
-        $this->beforeFilter(function()
-        {
-            if(!Auth::check())
-            {
-                return Redirect::to('/');
-            }
-        });
-
         $this->_groupService = $groupService;
+        $this->_gameService = $gameService;
+        $this->_currentUser = $user;
     }
 
     public function getIndex()
@@ -35,7 +30,7 @@ class GroupController extends Controller {
     }
 
     public function getCreate()
-    {
+    {        
         return View::make('group/create');
     }
 
@@ -52,7 +47,13 @@ class GroupController extends Controller {
         {
             if(!$this->_groupService->GroupExits(Input::get('name')))
             {
-                $id = $this->_groupService->CreateGroup(Input::get('name'), Input::get('description'), Auth::user()->id);
+                $id = $this->_groupService->CreateGroup(
+                        Input::get('name'), 
+                        Input::get('description'), 
+                        Auth::user()->id,
+                        new \DateTime(Input::get('start')),
+                        new \DateTime(Input::get('end'))
+                        );
                 return Redirect::to('group/view/'.$id)->with(
                     'success',
                     trans('alert.succreate_group')
@@ -157,7 +158,7 @@ class GroupController extends Controller {
         );
         if($validator->passes())
         {
-            $this->_groupService->ApplyForGroup(Auth::User()->id, Input::get('id_group'), Auth::User()->id, Input::get('message'));
+            $this->_groupService->ApplyForGroup(Input::get('id_group'), Input::get('message'));
             return Redirect::to('/group')->with(
                 'success',
                 trans('alert.sucapply_group')
@@ -187,7 +188,7 @@ class GroupController extends Controller {
             {
                 foreach($ids as $id)
                 {
-                    $this->_groupService->ApplyForGroup($id->id, Input::get('id_group'), Auth::User()->id, Input::get('message'));
+                    $this->_groupService->RecommandForGroup($id->id, Input::get('id_group'), Input::get('message'));
                 }
 
                 return Redirect::to('/group')->with(
@@ -207,5 +208,33 @@ class GroupController extends Controller {
             'error',
             trans('alert.errors_application')
         );
+    }
+    
+    public function getGames($id)
+    {
+        $games = $this->_groupService->GetGroupGames($id, 7);
+
+        return view('group.games', array('games' => $games));
+    }
+    
+    public function getGame($id, $action, $param)
+    {
+        $group = $this->_groupService->Get($id);
+    
+        switch($action)
+        {
+            case "view":
+                $game = $this->_gameService->Get($param);
+                $bets = $this->_groupService->GetBetsForGroupAndGame($id, $param);
+                return view('group.game.view', 
+                    array('group' => $group, 
+                    'game' => $game, 
+                    'bets' => $bets));
+                
+            default:
+                $games = $this->_groupService->GetGroupGames($id, 7);
+                return view('group.games', array('group' => $group,
+                    'games' => $games));
+        } 
     }
 }

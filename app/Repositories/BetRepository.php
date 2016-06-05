@@ -1,7 +1,6 @@
 <?php namespace App\Repositories;
 
 use App\Exceptions\NotFoundException;
-use App\Helpers\EnumHelper;
 use App\Models\Data\Bet;
 use \DB;
 use App\Repositories\Contracts\IBetRepository;
@@ -22,7 +21,7 @@ class BetRepository implements IBetRepository
 
     public function GetUserIncomingBets($id, $days = 0)
     {
-        $baseQ = Bet::join('games', 'bets.id_game', '=', 'games.id')
+        $baseQ = Bet::join('games', 'games.id', '=', 'bets.id_game')
             ->where('id_user', '=', $id)
             ->where('games.date', '>', DB::raw('CURDATE()'));
 
@@ -31,16 +30,16 @@ class BetRepository implements IBetRepository
             $baseQ = $baseQ->where('games.date', '<', DB::raw('CURDATE() + INTERVAL ' . $days . ' DAY'));
         }
 
-        return $baseQ->get();
+        return $g = $baseQ->get();
     }
 
-    public function Create($score1, $score2, $idGame, $userId)
+    public function Create($ubet, $idGame, $userId)
     {
         $bet = new Bet;
         $bet->id_game = $idGame;
         $bet->id_user = $userId;
-        $bet->score1 = $score1;
-        $bet->score2 = $score2;
+        $bet->bet = $ubet;
+        $bet->state = \App\Models\Types\BetStates::WAITING;
         $bet->save();
 
         return $bet->id;
@@ -59,28 +58,47 @@ class BetRepository implements IBetRepository
     {
         if($max > 0)
         {
-            //TODO: rewrite this with Bet model - have fun
-            $users = DB::select(DB::raw('SELECT (SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND processed=1) as nb, COUNT(b.id)/(SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND processed=1) as percent,u.* FROM bets as b
+            $users = DB::select(DB::raw('SELECT (SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND state > 0) as nb, COUNT(b.id)/(SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND state > 0) as percent,u.* FROM bets as b
                                               LEFT JOIN users as u
                                               ON u.id=b.id_user
-                                              WHERE b.processed = 1
+                                              WHERE b.state > 0
                                               AND (SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND
-                                              processed=1) >= ' . $min . '
+                                              state > 0) >= ' . $min . '
                                               AND (SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND
-                                              processed=1) < ' . $max . '
-                                              AND b.outcome = 1 GROUP BY b.id_user ORDER BY percent DESC'));
+                                              state > 0) < ' . $max . '
+                                              AND b.state = 1 GROUP BY b.id_user ORDER BY percent DESC'));
         }
         else
         {
-            $users = DB::select(DB::raw('SELECT (SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND processed=1) as nb, COUNT(b.id)/(SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND processed=1) as percent,u.* FROM bets as b
+            $users = DB::select(DB::raw('SELECT (SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND state > 0) as nb, COUNT(b.id)/(SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND state > 0) as percent,u.* FROM bets as b
                                               LEFT JOIN users as u
                                               ON u.id=b.id_user
-                                              WHERE b.processed = 1
+                                              WHERE b.state > 0
                                               AND (SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND
-                                              processed=1) >= ' . $min . '
-                                              AND b.outcome = 1 GROUP BY b.id_user ORDER BY percent DESC'));
+                                              state>0) >= ' . $min . '
+                                              AND b.state = 1 GROUP BY b.id_user ORDER BY percent DESC'));
         }
 
         return $users;
     }
+
+    public function GetBetsToProcessOnGame($gameId)
+    {
+        return Bet::where('id_game', '=', $gameId)
+                ->where('state', '=', \App\Models\Types\BetStates::WAITING)
+                ->get();
+    }
+
+    public function MarkAsDone($betId, $state)
+    {
+        $bet = $this->Get($betId);
+        $bet->state = $state;
+        $bet->save();
+    }
+
+    public function GetUserBetForGame($idGame, $userId)
+    {
+        return Bet::where('id_game', '=', $idGame)->where('id_user', '=', $userId)->get();
+    }
+
 }

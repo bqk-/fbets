@@ -2,6 +2,7 @@
 
 use App\Models\Data\User;
 use App\Models\Data\Group;
+use App\Models\Data\GroupNotification;
 use App\Repositories\Contracts\IGroupRepository;
 
 class GroupRepository implements IGroupRepository
@@ -10,6 +11,12 @@ class GroupRepository implements IGroupRepository
     {
     }
     
+    /**
+    * Returns group from id
+    *
+    * @param int $id id of the group
+    * @return App\Models\Data\Group the group
+    */
     public function Get($id)
     {
         $group = Group::find($id);
@@ -26,11 +33,13 @@ class GroupRepository implements IGroupRepository
         return $this->Get($idgroup)->users();
     }
     
-    public function CreateGroup($name, $descripiton) 
+    public function CreateGroup($name, $description, \DateTime $start, \DateTime $end) 
     {
         $g = new Group;
         $g->name = $name;
         $g->description = $description;
+        $g->start = $start;
+        $g->end = $end;
         $g->save();
         
         return $g->id;
@@ -107,18 +116,7 @@ class GroupRepository implements IGroupRepository
         
         return $n->id;
     }
-    
-    public function CreateApplicationPoll($application, $iduser, $idgroup)
-    {
-        $poll = new Poll;
-        $poll->id_group = $idgroup;
-        $poll->id_user = $iduser;
-        $poll->id_game = $application;
-        $poll->save();
-        
-        return $poll->id;
-    }
-    
+       
     public function GetNotifications($idgroup, $limit = 20)
     {
         return GroupNotification::
@@ -144,5 +142,16 @@ class GroupRepository implements IGroupRepository
         return Group::where('name', '=', $name)->get();
     }
 
+    public function GetGroupGames($id, $days)
+    {
+        $group = $this->Get($id);
+        return $group->games();
+    }
+    
+    public function GetBetsForGroupAndGame($idgroup, $idgame)
+    {
+        $group = $this->Get($idgroup);
+        return $group->games()->where('id', '=', $idgame)->first();
+    }
 }
 

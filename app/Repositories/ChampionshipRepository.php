@@ -4,14 +4,14 @@ use App\Exceptions\InvalidOperationException;
 use App\Exceptions\NotFoundException;
 use App\Repositories\Contracts\IChampionshipRepository;
 use App\Models\Data\Championship;
-use Illuminate\Support\Facades\Auth;
+
 
 class ChampionshipRepository implements IChampionshipRepository
 {
 
     public function Get($id)
     {
-        $championship = Championship::find($id);
+        $championship = Championship::with('games', 'games.team1', 'games.team2')->find($id);
 
         if($championship == null)
         {
@@ -42,6 +42,8 @@ class ChampionshipRepository implements IChampionshipRepository
         $championship->name = $name;
         $championship->type = $class;
         $championship->id_sport = $sport;
+        $championship->params = serialize(array());
+        $championship->active = 1;
         $championship->save();
 
         return $championship->id;
@@ -81,24 +83,26 @@ class ChampionshipRepository implements IChampionshipRepository
     public function ActivateChampionship($id)
     {
         $championship = $this->Get($id);
-        if($championship->active !== 0)
+        if($championship->active != 0)
         {
             throw new InvalidOperationException('Cannot activate an active championship');
         }
 
         $championship->active = 1;
+        $championship->params = serialize($championship->params);
         $championship->save();
     }
 
     public function UnActivateChampionship($id)
     {
         $championship = $this->Get($id);
-        if($championship->active !== 1)
+        if($championship->active != 1)
         {
-            throw new InvalidOperationException('Cannot activate an active championship');
+            throw new InvalidOperationException('Cannot unactivate an unactive championship');
         }
 
         $championship->active = 0;
+        $championship->params = serialize($championship->params);
         $championship->save();
     }
 
@@ -106,6 +110,13 @@ class ChampionshipRepository implements IChampionshipRepository
     {
         return $this->Get($id)->active == 1;
     }
+
+    public function HasGames($champId)
+    {
+        $game = Championship::find($champId)->with('games')->first()->games()->first();
+        return $game != null;
+    }
+
 }
 
 

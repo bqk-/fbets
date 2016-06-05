@@ -4,9 +4,6 @@ use App\Exceptions\InvalidArgumentException;
 use App\Exceptions\MissingArgumentException;
 use App\Exceptions\OutOfRangeException;
 use App\Repositories\Contracts\IChampionshipRepository;
-use \DB;
-use Illuminate\Contracts\Validation\UnauthorizedException;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Created by PhpStorm.
@@ -36,11 +33,6 @@ class ChampionshipService
 
     public function Create($name, $class, $sport)
     {
-        if(!Auth::check())
-        {
-            throw new UnauthorizedException('Cannot create championship without being logged');
-        }
-
         if(empty($name))
         {
             throw new MissingArgumentException('name');
@@ -61,12 +53,13 @@ class ChampionshipService
             throw new MissingArgumentException('class');
         }
 
-        if(!is_int($sport) || $sport <= 0)
+        if($sport <= 0)
         {
             throw new InvalidArgumentException('sport', $sport);
         }
 
-        return $this->_championshipRepository->Create($name, $class, $sport);
+        $id = $this->_championshipRepository->Create($name, $class, $sport);
+        return $this->_championshipRepository->Get($id);
     }
 
     public function GetAllWithGames()
@@ -79,23 +72,9 @@ class ChampionshipService
         return $this->_championshipRepository->GetWithGamesAndScores($id);
     }
 
-    public function UpdateChampionshipParams($id, array $arrayParams)
+    public function HasGames($champId)
     {
-        if(!Auth::check())
-        {
-            throw new UnauthorizedException('Cannot create championship without being logged');
-        }
-
-        if(!is_array($arrayParams))
-        {
-            throw new InvalidArgumentException('array of params', $arrayParams);
-        }
-
-        $this->_championshipRepository->UpdateChampionshipParams($id, $arrayParams);
+        return $this->_championshipRepository->HasGames($champId);
     }
 
-    public function ActivateChampionship($id)
-    {
-        $this->_championshipRepository->ActivateChampionship($id);
-    }
 }

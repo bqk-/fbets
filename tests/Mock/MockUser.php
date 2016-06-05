@@ -31,6 +31,10 @@ class MockUser implements \App\Services\Contracts\ICurrentUser
     public function GetName() {
         return $this->Name;
     }
+    
+    public function LogUser($id) {
+        return $this->Id = $id;
+    }
 
     public function __construct() {
         $this->Name = 'Tester';
