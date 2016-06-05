@@ -38,7 +38,9 @@ class MockGameRepository implements \App\Repositories\Contracts\IGameRepository
     }
 
     public function UpdateGameTime($idGame, $getGameTime) {
-        
+        if(key_exists($idGame, $this->games)){
+            $this->games[$idGame]->date = $getGameTime;
+        }
     }
 
     public function Create($teamh, $teamv, $champId, $date)

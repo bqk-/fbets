@@ -53,7 +53,7 @@ class GameService
         $game = $this->_gameRepository->Get($idGame);
         if($game == null)
         {
-            throw new \App\Exceptions\InvalidOperationException('Cannot add score to unknow game');
+            throw new \App\Exceptions\InvalidOperationException('Cannot add score to unknown game');
         }
         
         $this->_scoreRepository->AddScore($game->Id, $score1, $score2, $state);
@@ -69,9 +69,13 @@ class GameService
         }
 
         $game = $this->Get($idGame);
-        $game->date = $time;
-
-        $game->save();
+        
+        if($game == null)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Cannot change date to unknown game');
+        }
+        
+        return $this->_gameRepository->UpdateGameTime($idGame, $time);
     }
 
     public function Create(\App\Models\Admin\TournamentClasses\Game $game, $idChamp, $relations)

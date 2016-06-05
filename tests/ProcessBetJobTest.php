@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 class ProcessBetJobTest extends TestCase {
 
@@ -32,6 +32,10 @@ class ProcessBetJobTest extends TestCase {
                 new App\Models\Admin\TournamentClasses\Score(5, 5, App\Models\Types\GameStates::DRAW)),
                 $cs->id,
                 array(1 => 1, 2 => 2));
+        
+        $date = new \DateTime();
+        $date->add(date_interval_create_from_date_string('3 hours')); 
+        $gameService->UpdateGameTime($game, $date->format('Y-m-d G:i:s'));
         
         $user->LogUser(2);
         $bet2 = $betsService->Create($game, App\Models\Types\GameStates::DRAW);

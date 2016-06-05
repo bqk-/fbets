@@ -112,49 +112,48 @@ class BetService
     public function GetRates($gameId)
     {
         $percent = $this->GetPercent($gameId);
-        if($percent->HomeRate > 0.8)
+        
+        $rates = new \App\Models\Services\BetRates($gameId, 0, 0, 0);
+        $rates->HomeRate = ($percent->DrawRate + $percent->VisitRate) / 2;
+        $rates->DrawRate = ($percent->HomeRate + $percent->VisitRate) / 2;
+        $rates->VisitRate = ($percent->DrawRate + $percent->HomeRate) / 2;
+
+        $ratesCorrected = new \App\Models\Services\BetRates($gameId, 
+                $rates->HomeRate, 
+                $rates->VisitRate, 
+                $rates->DrawRate);
+        
+        if($rates->HomeRate < 0.1)
         {
-            $percent->VisitRate += ($percent->HomeRate - 0.8) / 2;
-            $percent->DrawRate += ($percent->HomeRate - 0.8) / 2;
-            $percent->HomeRate -= $percent->HomeRate - 0.8;
+            $ratesCorrected->VisitRate -= ($rates->VisitRate * (0.1 - $rates->HomeRate)) / 
+                    ($rates->VisitRate + $rates->DrawRate);
+            $ratesCorrected->DrawRate -= ($rates->DrawRate * (0.1 - $rates->HomeRate)) / 
+                    ($rates->VisitRate + $rates->DrawRate);
+            $ratesCorrected->HomeRate = 0.1;
         }
         
-        if($percent->VisitRate > 0.8)
+        if($rates->VisitRate < 0.1)
         {
-            $percent->HomeRate += ($percent->VisitRate - 0.8) / 2;
-            $percent->DrawRate += ($percent->VisitRate - 0.8) / 2;
-            $percent->VisitRate -= $percent->VisitRate - 0.8;
+            $ratesCorrected->HomeRate -= ($rates->HomeRate * (0.1 - $rates->VisitRate)) / 
+                    ($rates->HomeRate + $rates->DrawRate);
+            $ratesCorrected->DrawRate -= ($rates->DrawRate * (0.1 - $rates->VisitRate)) / 
+                    ($rates->HomeRate + $rates->DrawRate);
+            $ratesCorrected->VisitRate = 0.1;
         }
         
-        if($percent->DrawRate > 0.8)
+        if($rates->DrawRate < 0.1)
         {
-            $percent->VisitRate += ($percent->DrawRate - 0.8) / 2;
-            $percent->HomeRate += ($percent->DrawRate - 0.8) / 2;
-            $percent->DrawRate -= $percent->DrawRate - 0.8;
+            $ratesCorrected->VisitRate -= ($rates->VisitRate * (0.1 - $rates->DrawRate)) / 
+                    ($rates->HomeRate + $rates->VisitRate);
+            $ratesCorrected->HomeRate -= ($rates->HomeRate * (0.1 - $rates->DrawRate)) / 
+                    ($rates->HomeRate + $rates->VisitRate);
+            $ratesCorrected->DrawRate = 0.1;
         }
 
-        if($percent->HomeRate < 0.1)
-        {
-            $percent->VisitRate -= (0.1 - $percent->HomeRate) / 2;
-            $percent->DrawRate -= (0.1 - $percent->HomeRate) / 2;
-            $percent->HomeRate += 0.1 - $percent->HomeRate;
-        }
-        
-        if($percent->VisitRate < 0.1)
-        {
-            $percent->HomeRate -= (0.1 - $percent->VisitRate) / 2;
-            $percent->DrawRate -= (0.1 - $percent->VisitRate) / 2;
-            $percent->VisitRate += 0.1 - $percent->VisitRate;
-        }
-        
-        if($percent->DrawRate < 0.1)
-        {
-            $percent->VisitRate -= (0.1 - $percent->DrawRate) / 2;
-            $percent->HomeRate -= (0.1 - $percent->DrawRate) / 2;
-            $percent->DrawRate += 0.1 - $percent->DrawRate;
-        }
-        
-        return $percent;
+        return new \App\Models\Services\BetRates($gameId, 
+                round($ratesCorrected->HomeRate, 3),
+                round($ratesCorrected->VisitRate, 3),
+                round($ratesCorrected->DrawRate, 3));
     }
     
     /**
