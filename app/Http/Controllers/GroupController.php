@@ -2,10 +2,10 @@
 
 use App\Services\GroupService;
 use App\Services\GameService;
+use App\Services\PollService;
 use App\Services\Contracts\ICurrentUser;
 use \Redirect;
 use \View;
-use \Auth;
 use \Validator;
 use \Input;
 
@@ -14,24 +14,38 @@ class GroupController extends Controller
     private $_groupService;
     private $_gameService;
     private $_currentUser;
+    private $_pollService;
     
     public function __construct(GroupService $groupService, 
             GameService $gameService,
+            PollService $pollService,
             ICurrentUser $user)
     {
         $this->_groupService = $groupService;
         $this->_gameService = $gameService;
         $this->_currentUser = $user;
+        $this->_pollService = $pollService;
     }
 
     public function getIndex()
     {
         return View::make('group/index');
     }
+    
+    public function getList()
+    {
+        $groups = $this->_groupService->GetAll();
+        foreach ($groups as $g)
+        {
+            $g->hasApplication = $this->_groupService->HasApplication($this->_currentUser->GetId(), $g->id);
+        }
+        
+        return View::make('group.list', array('groups' => $groups));
+    }
 
     public function getCreate()
     {        
-        return View::make('group/create');
+        return View::make('group.create');
     }
 
     public function postCreate()
@@ -50,9 +64,8 @@ class GroupController extends Controller
                 $id = $this->_groupService->CreateGroup(
                         Input::get('name'), 
                         Input::get('description'), 
-                        Auth::user()->id,
-                        new \DateTime(Input::get('start')),
-                        new \DateTime(Input::get('end'))
+                        new \DateTime,
+                        new \DateTime
                         );
                 return Redirect::to('group/view/'.$id)->with(
                     'success',
@@ -79,19 +92,19 @@ class GroupController extends Controller
         $notifWithMessage = array();
         foreach($notifications as $n)
         {
-            $notifWithMessage[] = self::formatNotificationMessage($n->type, $n->pseudo, $n->date);
+            $notifWithMessage[] = self::formatNotificationMessage($n->type, $n->pseudo, $n->date, $id);
         }
 
-        return View::make('group/history')
+        return View::make('group.history')
             ->with(array('group' => $group,
                 'notifications' => $notifWithMessage,
-                'isMember' => $this->_groupService->IsInGroup(Auth::User()->id, $id)));
+                'isMember' => $this->_groupService->IsInGroup($this->_currentUser->GetId(), $id)));
     }
 
     public function getInvite($id)
     {
         $group = $this->_groupService->Get($id);
-        if($this->_groupService->IsInGroup(Auth::User()->id, $id))
+        if($this->_groupService->IsInGroup($this->_currentUser->GetId(), $id))
         {
             return View::make('group/invite')
                 ->with(array('group' => $group));
@@ -106,14 +119,14 @@ class GroupController extends Controller
     public function getRequest($id)
     {
         $group = $this->_groupService->Get($id);
-        if($this->_groupService->IsInGroup(Auth::User()->id, $id))
+        if($this->_groupService->IsInGroup($this->_currentUser->GetId(), $id))
         {
             $applications = $this->_groupService->GetApplications($id);
 
             return View::make('group/request')
                 ->with(array('group' => $group,
                     'applications' => $applications,
-                    'isMember' => $this->_groupService->IsInGroup(Auth::User()->id, $id)));
+                    'isMember' => $this->_groupService->IsInGroup($this->_currentUser->GetId(), $id)));
         }
 
         return Redirect::to('/group/view/' . $id)->with(
@@ -126,9 +139,11 @@ class GroupController extends Controller
     {
         if($id > 0){
             $group = $this->_groupService->Get($id);
-            return View::make('group/view')
+            return View::make('group.view')
                 ->with(array('group' => $group,
-                    'isMember' => $this->_groupService->IsInGroup(Auth::user()->id, $id)));
+                    'isMember' => $this->_groupService->IsInGroup($this->_currentUser->GetId(), $id),
+                    'hasApplication' => $this->_groupService->HasApplication($this->_currentUser->GetId(),
+                                                                             $id)));
         }
 
         return Redirect::to('/')->with(
@@ -137,12 +152,42 @@ class GroupController extends Controller
         );
     }
 
-    private function formatNotificationMessage($type, $user, $date)
+    public function getApply($id)
+    {
+        if($id > 0){
+            $group = $this->_groupService->Get($id);
+            if(!$this->_groupService->HasApplication($this->_currentUser->GetId(), $id))
+            {
+                return View::make('group.apply')
+                    ->with(array('group' => $group,
+                    'isMember' => $this->_groupService->IsInGroup($this->_currentUser->GetId(), $id)));
+            }
+            
+            return Redirect::to('group/list')->with(
+                'error',
+                trans('alert.already_applied')
+            );
+        }
+
+        return Redirect::to('/')->with(
+            'error',
+            trans('alert.notexisting_group')
+        );
+    }
+    
+    private function formatNotificationMessage($type, $user, $date, $group)
     {
         if($type > 0 && $type < 9)
         {
-            $datetime = strtotime( $date );
-            return date(trans('notifications.datetime'), $datetime).' - '.trans('notifications.type_' . $type, array('user' => $user));
+            if($type == 3 || $type == 4)
+            {
+                return '<a href="'.\    URL::to('group/polls/' . $group).'">'
+                . \App\Helpers\DateHelper::sqlDateToStringHuman($date).' - '
+                .trans('notifications.type_' . $type, array('user' => htmlentities($user)))
+                .'</a>';
+        
+            }
+            return \App\Helpers\DateHelper::sqlDateToStringHuman($date).' - '.trans('notifications.type_' . $type, array('user' => $user));
         }
 
         throw new \InvalidArgumentException('type out of range');
@@ -159,7 +204,7 @@ class GroupController extends Controller
         if($validator->passes())
         {
             $this->_groupService->ApplyForGroup(Input::get('id_group'), Input::get('message'));
-            return Redirect::to('/group')->with(
+            return Redirect::to('/group/view/' . Input::get('id_group'))->with(
                 'success',
                 trans('alert.sucapply_group')
             );
@@ -184,7 +229,7 @@ class GroupController extends Controller
         $ids = json_decode(Input::get('ids'));
         if($validator->passes())
         {
-            if($this->_groupService->IsInGroup(Auth::User()->id, Input::get('id_group')))
+            if($this->_groupService->IsInGroup($this->_currentUser->GetId(), Input::get('id_group')))
             {
                 foreach($ids as $id)
                 {
@@ -236,5 +281,62 @@ class GroupController extends Controller
                 return view('group.games', array('group' => $group,
                     'games' => $games));
         } 
+    }
+    
+    public function getPolls($id, $action = null)
+    {
+        if($id > 0)
+        {
+            if($action != null)
+            {
+                if($action == 'accept')
+                {
+                    $this->_pollService->AddVote($id, \App\Models\Types\VoteTypes::YES);
+                }
+                else if($action == 'refuse')
+                {
+                    $this->_pollService->AddVote($id, \App\Models\Types\VoteTypes::NO);
+                }
+                
+                return Redirect::to('group/polls/' . $id);
+            }
+
+            $actives = $this->_pollService->GetActivePollsForGroup($id);
+            $expired = $this->_pollService->GetExpiredPollsForGroup($id);
+            
+            $activesForView = array();
+            foreach ($actives as $a)
+            {
+                $activesForView[] = new \App\Models\ViewModels\PollViewModel($a->id, 
+                        $a->type, 
+                        $a->created_at,
+                        $this->_pollService->GetPercents($a->id),
+                        $this->_pollService->GetUserVote($a->id),
+                        new \App\Models\Services\UserBrief($a->uid, $a->pseudo));
+            }
+            
+            $expiredForView = array();
+            foreach ($expired as $a)
+            {
+                $expiredForView[] = new \App\Models\ViewModels\PollViewModel($a->id, 
+                        $a->type, 
+                        $a->created_at,
+                        $this->_pollService->GetPercents($a->id),
+                        $this->_pollService->GetUserVote($a->id),
+                        new \App\Models\Services\UserBrief($a->uid, $a->pseudo));
+            }
+            
+            return View::make('group/polls')
+                    ->with(array('model' => 
+                        new \App\Models\ViewModels\PollsListViewModel(
+                                $this->_groupService->Get($id),
+                                $activesForView, 
+                                $expiredForView)));
+        }
+        
+        return Redirect::to('/')->with(
+            'error',
+            trans('alert.notexisting_group')
+        );
     }
 }

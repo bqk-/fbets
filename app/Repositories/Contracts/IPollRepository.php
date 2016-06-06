@@ -3,9 +3,13 @@
 interface IPollRepository
 {
 
+    public function GetPollWithDeleted($id_poll);
+
+    public function GetPollsActiveForGroup($group);
+
     public function GetGamePoll($group, $game);
 
-    public function DeletePoll($id_poll);
+    public function DeletePoll($id_poll, $status);
 
     public function GetVote($id_poll, $id_user);
 
@@ -22,4 +26,6 @@ interface IPollRepository
     public function CreateGamePoll($idgame, $idgroup);
     
     public function GetPollsCreatedBefore($date);
+    
+    public function GetPollsPastForGroup($group);
 }

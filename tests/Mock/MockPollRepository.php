@@ -87,12 +87,7 @@ class MockPollRepository implements \App\Repositories\Contracts\IPollRepository
         return $votes->where('id_user', $id_user)->first();
     }
 
-    public function GetPollsCreatedBefore($date)
-    {
-        
-    }
-
-    public function DeletePoll($id_poll)
+    public function DeletePoll($id_poll, $status)
     {
         foreach ($this->polls as $group)
         {
@@ -120,6 +115,26 @@ class MockPollRepository implements \App\Repositories\Contracts\IPollRepository
         }
         
         return null;
+    }
+
+    public function GetPollsActiveForGroup($group)
+    {
+        //view only
+    }
+
+    public function GetPollsCreatedBefore($date)
+    {
+        //
+    }
+
+    public function GetPollsPastForGroup($group)
+    {
+        //view only
+    }
+
+    public function GetPollWithDeleted($id_poll)
+    {
+        //view only
     }
 
 }

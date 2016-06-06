@@ -95,7 +95,7 @@ class MockGroupRepository implements \App\Repositories\Contracts\IGroupRepositor
 
     public function GetApplications($idgroup, $limit = 20) 
     {
-        if(key_exists($idgroup, $this->users))
+        if(key_exists($idgroup, $this->applications))
         {
             return new \Illuminate\Database\Eloquent\Collection($this->applications[$idgroup]);
         }
@@ -105,7 +105,7 @@ class MockGroupRepository implements \App\Repositories\Contracts\IGroupRepositor
 
     public function GetNotifications($idgroup, $limit = 20) 
     {
-        if(key_exists($idgroup, $this->users))
+        if(key_exists($idgroup, $this->notifications))
         {
             return new \Illuminate\Database\Eloquent\Collection($this->notifications[$idgroup]);
         }
@@ -175,4 +175,10 @@ class MockGroupRepository implements \App\Repositories\Contracts\IGroupRepositor
     {
         $this->games[$group][] = $game;
     }
+
+    public function GetAll()
+    {
+        
+    }
+
 }

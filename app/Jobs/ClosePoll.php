@@ -76,17 +76,17 @@ class ClosePoll extends Job implements ShouldQueue
         
         if($yes > $no && $yes >= $majority)
         {
-            $this->AcceptPoll($poll, $poll->type);
+            $this->AcceptPoll($poll);
         }
         else
         {
-            $this->PollService->DeletePoll($poll->id);
+            $this->RefusePoll($poll);
         }
     }
 
-    private function AcceptPoll($poll, $type)
+    private function AcceptPoll($poll)
     {
-        switch($type)
+        switch($poll->type)
         {
             case \App\Models\Types\PollTypes::USER_ADD:
                 $this->GroupService->AddUserToGroup($poll->id_user, $poll->id_group);
@@ -101,6 +101,24 @@ class ClosePoll extends Job implements ShouldQueue
                 throw new \App\Exceptions\InvalidOperationException("Not implemented");
         }
 
-        $this->PollService->DeletePoll($poll->id);
+        $this->PollService->DeletePoll($poll->id, \App\Models\Types\VoteTypes::YES);
+    }
+    
+    private function RefusePoll($poll)
+    {
+        switch($poll->type)
+        {
+            case \App\Models\Types\PollTypes::USER_ADD:
+                $this->GroupService->DeleteApplication($poll->id_group, $poll->id_user);
+                break;
+            
+            case \App\Models\Types\PollTypes::GAME_ADD:
+                $this->PollService->DeletePoll($poll->id, \App\Models\Types\VoteTypes::NO);
+                break;
+            
+            //TODO: Code other types
+            default:
+                throw new \App\Exceptions\InvalidOperationException("Not implemented");
+        }
     }
 }

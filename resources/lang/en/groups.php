@@ -15,4 +15,8 @@ return array(
     'propose_title' => 'Invite new members',
     'notifications_title' => 'History',
     'request_title' => 'Requests',
+    
+    'appli_submitted' => 'Application submitted.',
+    'polls_active' => 'Active Polls',
+    'polls_expired' => 'Expired Polls',
 );

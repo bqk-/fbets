@@ -34,8 +34,8 @@ class StoreRatesWithBets extends Migration
     {
         Schema::table('bets', function($table)
         {
-            $table->tinyint('outcome')->after('status');
-            $table->tinyint('processed')->after('outcome');
+            $table->tinyInteger('outcome')->after('status');
+            $table->tinyInteger('processed')->after('outcome');
         });
         
         Schema::table('games', function($table)

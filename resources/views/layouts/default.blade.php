@@ -58,6 +58,7 @@
                 <li class="pnli"><a href="/">{{ trans('general.home') }}</a></li>
                 <li class="pnli"><a href="/ladder">{{ trans('general.top_bet') }}</a></li>
                 <li class="pnli"><a href="/view">{{ trans('general.view') }}</a></li>
+                <li class="pnli"><a href="/group">{{ trans('general.group') }}</a></li>
                 <!--<li class="pnli"><a href="/suggest">{{ trans('general.suggest') }}</a></li>-->
             </ul>
         </div>

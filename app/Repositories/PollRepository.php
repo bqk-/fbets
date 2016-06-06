@@ -14,7 +14,10 @@ class PollRepository implements IPollRepository
         $poll->id_game = $idgame;
         $poll->status = 0;
         $poll->id_group = $id_group;
+        $poll->type = $type;
         $poll->save();
+        
+        return $poll->id;
     }
 
     public function AddVote($userid, $id_poll, $opinion)
@@ -36,7 +39,7 @@ class PollRepository implements IPollRepository
 
     public function GetPollsCreatedBefore($date)
     {
-        $polls = Poll::where('created_at' , '<', $date);
+        $polls = Poll::where('created_at' , '<', $date)->get();
         return $polls;
     }
     
@@ -76,14 +79,49 @@ class PollRepository implements IPollRepository
         return Vote::where('id_poll', $id_poll)->get();
     }
 
-    public function DeletePoll($id_poll)
+    public function DeletePoll($id_poll, $status)
     {
-        Vote::find($id_poll)->delete();
+        $v = Poll::find($id_poll);
+        $v->status = $status;
+        $v->save();
+        $v->delete();
     }
 
     public function GetGamePoll($group, $game)
     {
-        return Poll::where('id_game', $game)->get();
+        return Poll::where('id_game', $game)->where('id_group', $group)->get();
+    }
+
+    public function GetPollsActiveForGroup($group)
+    {
+        $polls = Poll::leftJoin('users as u', 'u.id', '=', 'groups_polls.id_user')
+                ->where('id_group', $group)
+                ->orderBy('groups_polls.created_at', 'desc')
+                ->select('groups_polls.*', 'u.id as uid', 'u.display as pseudo')
+                ->get();
+        return $polls;
+    }
+
+    public function GetPollsPastForGroup($group)
+    {
+        $polls = Poll::onlyTrashed()
+                ->leftJoin('users as u', 'u.id', '=', 'groups_polls.id_user')
+                ->where('id_group', $group)
+                ->orderBy('groups_polls.created_at', 'desc')
+                ->select('groups_polls.*', 'u.id as uid', 'u.display as pseudo')
+                ->get();
+        return $polls;
+    }
+
+    public function GetPollWithDeleted($id_poll)
+    {
+        $p = Poll::withTrashed()->find($id_poll);
+        if($p == null)
+        {
+            throw new \App\Exceptions\InvalidOperationException('no poll with id: ' . $id_poll);
+        }
+        
+        return $p;
     }
 
 }

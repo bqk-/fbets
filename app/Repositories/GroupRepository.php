@@ -2,7 +2,9 @@
 
 use App\Models\Data\User;
 use App\Models\Data\Group;
+use App\Models\Data\Game;
 use App\Models\Data\GroupNotification;
+use App\Models\Data\GroupApplication;
 use App\Repositories\Contracts\IGroupRepository;
 
 class GroupRepository implements IGroupRepository
@@ -40,6 +42,7 @@ class GroupRepository implements IGroupRepository
         $g->description = $description;
         $g->start = $start;
         $g->end = $end;
+        $g->money = 0;
         $g->save();
         
         return $g->id;
@@ -47,14 +50,14 @@ class GroupRepository implements IGroupRepository
     
     public function PutUserInGroup($user, $group)
     {
-        $u = User::find($iduser);
-        $u->groups()->attach($idgroup);
+        $u = User::find($user);
+        $u->groups()->attach($group);
     }
     
     public function RemoveUserFromGroup($user, $group)
     {
-        $u = User::find($iduser);
-        $u->groups()->detach($idgroup);
+        $u = User::find($user);
+        $u->groups()->detach($group);
         $u->save();
     }
     
@@ -94,13 +97,14 @@ class GroupRepository implements IGroupRepository
         return $u != null;
     }
     
-    public function CreateNotification($iduser, $idgroup, $type)
+    public function CreateNotification($iduser, $idgroup, $type, $poll)
     {
         $n = new GroupNotification;
         $n->id_group = $idgroup;
         $n->id_user = $iduser;
         $n->type = $type;
         $n->date = date('Y-m-d G:i:s');
+        $n->id_poll = $poll;
         $n->save();
         return $n->id;
     }
@@ -123,6 +127,7 @@ class GroupRepository implements IGroupRepository
             where('id_group', '=', $idgroup)
             ->join('users as u', 'u.id', '=', 'groups_notifications.id_user')
             ->select('id_group', 'type', 'date', 'u.pseudo')
+            ->orderBy('date', 'desc')
             ->take($limit)
             ->get();
     }
@@ -153,5 +158,32 @@ class GroupRepository implements IGroupRepository
         $group = $this->Get($idgroup);
         return $group->games()->where('id', '=', $idgame)->first();
     }
+
+    public function AddGameToGroup($game, $group)
+    {
+        $groupObj = $this->Get($group);
+        $gameObj = Game::find($game);
+        if($game == null)
+        {
+            throw new \App\Exceptions\NotFoundException('Game not found:' . $game);
+        }
+        
+        $groupObj->games()->attach($gameObj);
+    }
+
+    public function GroupHasGame($group, $game)
+    {
+        $groupObj = $this->Get($group);
+        
+        return $groupObj->games()->contains(function ($key, $value) {
+            return $value->id == $game;
+        });
+    }
+
+    public function GetAll()
+    {
+        return Group::all();
+    }
+
 }
 

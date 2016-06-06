@@ -1,7 +1,7 @@
 <?php
 
 class GroupTest extends TestCase {
-
+    
 	public function testAccessGroupNotLogged()
 	{
         $this->app->singleton(
@@ -90,7 +90,7 @@ class GroupTest extends TestCase {
         $end->add(DateInterval::createFromDateString('6 months'));
         $grp = $srv->CreateGroup('group test', 'plop plop plop',
                 $start, $end);
-        $poll = $srv->RecommandForGroup(2, $grp, 'cool guy boys!');
+        $poll = $srv->RecommandForGroup(2, $grp, 'cool guy boys! (testCreateGroupInviteAndJoin)');
         
         $invits = $srv->GetApplications($grp);
         $this->assertEquals($invits->count(), 1);
@@ -133,7 +133,7 @@ class GroupTest extends TestCase {
                 $start, $end);
         
         $user->LogUser(2);
-        $poll = $srv->ApplyForGroup($grp, 'cool guy boys!');
+        $poll = $srv->ApplyForGroup($grp, 'cool guy boys! (testCreateGroupApplyAndJoin)');
         
         $invits = $srv->GetApplications($grp);
         $this->assertEquals($invits->count(), 1);
@@ -150,11 +150,15 @@ class GroupTest extends TestCase {
         $pollSrv->AddVote($poll, App\Models\Types\VoteTypes::YES);
         
         //should be closed automatically, usersCount == votesCount so message to queue
-        //see first line for the test
-        
         //this is what will happen then
         $job = new \App\Jobs\ClosePoll($poll);
         $job->handle($pollSrv, $srv);
+        
+        $invits = $srv->GetApplications($grp);
+        $this->assertEquals($invits->count(), 0);
+        
+        $notifs = $srv->GetNotifications($grp);
+        $this->assertEquals($notifs->count(), 3);
         
         //And the result
         $users = $srv->GetUsers($grp);
@@ -179,7 +183,7 @@ class GroupTest extends TestCase {
         $grp = $srv->CreateGroup('group test', 'plop plop plop',
                 $start, $end);
         $this->assertTrue($srv->IsInGroup(1, $grp));
-        $poll = $srv->RecommandForGroup(1, $grp, 'cool guy boys!');
+        $poll = $srv->RecommandForGroup(1, $grp, 'cool guy boys (testCreateGroupInviteAndAlreadyIn)!');
 	}
     
     public function testCreateGroupApplyAndRefuse()
@@ -196,7 +200,7 @@ class GroupTest extends TestCase {
         $grp = $srv->CreateGroup('group test', 'plop plop plop',
                 $start, $end);
         $user->LogUser(2);
-        $poll = $srv->ApplyForGroup($grp, 'cool guy boys!');
+        $poll = $srv->ApplyForGroup($grp, 'cool guy boys (testCreateGroupApplyAndRefuse)!');
         
         $invits = $srv->GetApplications($grp);
         $this->assertEquals($invits->count(), 1);
@@ -208,16 +212,20 @@ class GroupTest extends TestCase {
         $this->assertEquals($notifs->last()->id_user, 2);
         $this->assertEquals($notifs->last()->id_poll, $poll);
         $this->assertEquals($notifs->last()->type, App\Models\Types\NotificationTypes::APPLY);
-        
+
         //1 guy in group, 1 asking, 1 poll, 1 vote needed then
         $pollSrv->AddVote($poll, App\Models\Types\VoteTypes::NO);
         
         //should be closed automatically, usersCount == votesCount so message to queue
-        //see first line for the test
-        
         //this is what will happen then
         $job = new \App\Jobs\ClosePoll($poll);
         $job->handle($pollSrv, $srv);
+        
+        $invits = $srv->GetApplications($grp);
+        $this->assertEquals($invits->count(), 0);
+        
+        $notifs = $srv->GetNotifications($grp);
+        $this->assertEquals($notifs->count(), 3);
         
         //Still alone
         $users = $srv->GetUsers($grp);
@@ -238,10 +246,10 @@ class GroupTest extends TestCase {
         $grp = $srv->CreateGroup('group test', 'plop plop plop',
                 $start, $end);
         $this->assertFalse ($srv->IsInGroup(2, $grp));
-        $poll = $srv->RecommandForGroup(2, $grp, 'cool guy boys!');
+        $poll = $srv->RecommandForGroup(2, $grp, 'cool guy boys! (testCreateGroupInviteAndDeleteApplication)');
         
         $user->LogUser(2);
-        $srv->DeleteApplication($grp);
+        $srv->DeleteApplication($grp, 2);
         
         $invits = $srv->GetApplications($grp);
         $this->assertEquals($invits->count(), 0);
@@ -277,23 +285,5 @@ class GroupTest extends TestCase {
         $poll = $srv->RecommandForGroup(2, $grp, 'cool guy boys!');
         $pollSrv->AddVote($poll, App\Models\Types\VoteTypes::YES);
         $pollSrv->AddVote($poll, App\Models\Types\VoteTypes::NO);
-	}
-    
-    /**
-    * @expectedException \App\Exceptions\InvalidOperationException
-    * @expectedExceptionMessage Invalid operation: Need some time to add games/users
-    */
-    public function testCreateGroupStartTooSoon()
-	{   
-        $user = $this->app->make('App\Services\Contracts\ICurrentUser');
-        $user->LogUser(1);
-        
-		$srv = $this->app->make('App\Services\GroupService');
-        $pollSrv = $this->app->make('App\Services\PollService');
-        $start = new DateTime();
-        $end = new DateTime();
-        $end->add(DateInterval::createFromDateString('6 months'));
-        $grp = $srv->CreateGroup('group test', 'plop plop plop',
-                $start, $end);
 	}
 }

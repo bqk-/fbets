@@ -3,6 +3,8 @@
 interface IGroupRepository
 {
 
+    public function GetAll();
+
     public function AddGameToGroup($game, $group);
 
     public function GroupHasGame($group, $game);

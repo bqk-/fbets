@@ -6,6 +6,7 @@ use App\Services\Contracts\ICurrentUser;
 use App\Jobs\ClosePoll;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Models\Services\PollStatus;
 
 define('EXPIRATION_DELAY', "7 days");
 
@@ -46,21 +47,16 @@ class PollService
         if(($poll->type == \App\Models\Types\PollTypes::USER_ADD || $poll->type == \App\Models\Types\PollTypes::USER_DEL)
                 && $this->GetVotes($id_poll)->count() >= $users->count())
         {
-            Queue::push(new ClosePoll($poll->id));
+            if(env('APP_ENV') != 'testing')
+            {
+                Queue::push(new ClosePoll($poll->id));
+            }
         }
     }
     
     public function GetVotes($id_poll)
     {
         return $this->_pollRepository->GetVotes($id_poll);
-    }
-
-    /*
-     * Call this function from Cron/Update, whatever is updating the stuff
-     */
-    public function UpdatePolls()
-    {
-        $this->_pollRepository->UpdatePolls();
     }
 
     public function Get($id_poll)
@@ -80,18 +76,71 @@ class PollService
         
         return false;
     }
-
-    public function GetExpiredPolls()
+    
+    public function GetExpiredPollsForGroup($group)
     {
-        $date = new \DateTime();
-        $date->sub(\DateInterval::createFromDateString(EXPIRATION_DELAY));
-        
-        return $this->_pollRepository->GetPollsCreatedBefore($date);
+        return $this->_pollRepository->GetPollsPastForGroup($group);
     }
 
-    public function DeletePoll($id_poll)
+    public function DeletePoll($id_poll, $status)
     {
-        return $this->_pollRepository->DeletePoll($id_poll);
+        return $this->_pollRepository->DeletePoll($id_poll, $status);
+    }
+
+    public function GetActivePollsForGroup($group)
+    {
+        return $this->_pollRepository->GetPollsActiveForGroup($group);
+    }
+
+    /**
+     * @return \App\Models\Services\PollStatus
+     */
+    public function GetPercents($id_poll)
+    {
+        $poll = $this->_pollRepository->GetPollWithDeleted($id_poll);
+        if($poll == null)
+        {
+            throw new \App\Exceptions\InvalidOperationException('Poll undefined, please fix me: ' . $this->IdPoll);
+        }
+        
+        $votes = $this->_pollRepository->GetVotes($id_poll);
+        $nbUsers = $this->_groupRepository->GetUsers($poll->id_group)->count();
+        
+        $yes = 0;
+        $no = 0;
+        
+        foreach($votes as $vote)
+        {
+            if($vote->opinion == \App\Models\Types\VoteTypes::YES)
+            {
+                $yes++;
+            }
+            else if($vote->opinion == \App\Models\Types\VoteTypes::NO)
+            {
+                $no++;
+            }
+        }
+        
+        return new PollStatus($yes, $no, $nbUsers - $yes - $no);
+    }
+
+    public function GetUserVote($id_poll)
+    {
+        $vote = $this->_pollRepository->GetVote($id_poll, $this->_currentUser->GetId());
+        if($vote == null)
+        {
+            return \App\Models\Types\VoteTypes::DONTCARE;
+        }
+        
+        if($vote->opinion == \App\Models\Types\VoteTypes::YES)
+        {
+            return \App\Models\Types\VoteTypes::YES;
+        }
+        
+        if($vote->opinion == \App\Models\Types\VoteTypes::NO)
+        {
+            return \App\Models\Types\VoteTypes::NO;
+        }
     }
 
 }

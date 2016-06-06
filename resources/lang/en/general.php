@@ -27,7 +27,9 @@ return array(
     'more' => 'View all',
     'nogames' => 'No games coming up in the next 7 days, feel free to check later or suggest games !',
     'groups' => 'My groups',
+    'group' => 'Groups',
     'draw' => 'Draw',
+    'back' => 'Back',
 
     //Top bettors page
     'positionthead' => 'Pos.',

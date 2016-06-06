@@ -53,26 +53,18 @@ class GroupService
         
         if($validator->passes())
         {
-            $limit = new \DateTime();
-            $limit->add(\DateInterval::createFromDateString($this->DELAY_MINI_GROUP));
-            if($start >= $limit)
+            $exists = $this->_groupRepository->GetByName($name);
+            if($exists == null || $exists->count() == 0)
             {
-                if($this->_groupRepository->GetByName($name) == null)
-                {
-                    $id = $this->_groupRepository->CreateGroup($name, $description, $start, $end);
+                $id = $this->_groupRepository->CreateGroup($name, $description, $start, $end);
 
-                    $this->JoinGroup($id);
+                $this->JoinGroup($id);
 
-                    return $id;
-                }
-                else
-                {
-                    throw new \App\Exceptions\InvalidOperationException('group name is not unique');
-                }
+                return $id;
             }
             else
             {
-                throw new \App\Exceptions\InvalidOperationException('Need some time to add games/users');
+                throw new \App\Exceptions\InvalidOperationException('group name is not unique');
             }
         }
         else
@@ -89,7 +81,11 @@ class GroupService
     public function AddUserToGroup($iduser, $idgroup)
     {
         $this->_groupRepository->PutUserInGroup($iduser, $idgroup);
-
+        if($this->HasApplication($iduser, $idgroup))
+        {
+            $this->_groupRepository->DeleteApplication($iduser, $idgroup);
+        }
+        
         $this->GroupNotification($iduser, $idgroup, NotificationTypes::JOIN, 0);
     }
 
@@ -143,7 +139,7 @@ class GroupService
     public function HasApplication($iduser, $idgroup)
     {
         $u = $this->_groupRepository->GetApplication($iduser, $idgroup);
-        if(!$u){
+        if($u == null){
             return false;
         }
         return true;
@@ -190,27 +186,29 @@ class GroupService
         }
     }
     
-    public function DeleteApplication($idgroup)
+    public function DeleteApplication($idgroup, $idUser = 0)
     {
         $group = $this->_groupRepository->Get($idgroup);
+        $userId = $idUser > 0 ? $idUser : $this->_currentUser->GetId();
+        
         if($group == null)
         {
             throw new InvalidArgumentException("group doesn't exit");
         }
-        
-        if($this->HasApplication($this->_currentUser->GetId(), $idgroup))
+
+        if($this->HasApplication($userId, $idgroup))
         {
-            $appli = $this->_groupRepository->GetApplication($this->_currentUser->GetId(), $idgroup);
+            $appli = $this->_groupRepository->GetApplication($userId, $idgroup);
             $this->_groupRepository->DeleteApplication(
-                    $this->_currentUser->GetId(), 
+                    $userId, 
                     $idgroup);
             
-            $this->GroupNotification($this->_currentUser->GetId(), $idgroup, NotificationTypes::DELETE_APPLY, $appli->id_poll);                   
-            $this->_pollRepository->DeletePoll($appli->id_poll);   
+            $this->GroupNotification($userId, $idgroup, NotificationTypes::DELETE_APPLY, $appli->id_poll); 
+            $this->_pollRepository->DeletePoll($appli->id_poll, \App\Models\Types\VoteTypes::NO);   
         }
         else
         {
-            throw new \App\Exceptions\InvalidOperationException('Cannot recommand to this group, already in.');
+            throw new \App\Exceptions\InvalidOperationException('Cannot delete non existing application.');
         }
     }
     
@@ -336,6 +334,11 @@ class GroupService
         
         $this->_groupRepository->AddGameToGroup($game, $group);
         $this->GroupNotification(null, $group, NotificationTypes::POLL_END, 0);
+    }
+
+    public function GetAll()
+    {
+        return $this->_groupRepository->GetAll();
     }
 
 }

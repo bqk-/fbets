@@ -4,7 +4,7 @@
         <div class="col-md-8">
             <h3>{{{ $group->name }}} - {{ trans('groups.notifications_title') }}</h3>
             @foreach($notifications as $a)
-                <p>{{ $a }}</p>
+                <p>{!! $a !!}</p>
             @endforeach
         </div>
     </div>
