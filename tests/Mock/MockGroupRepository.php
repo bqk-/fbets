@@ -133,7 +133,7 @@ class MockGroupRepository implements \App\Repositories\Contracts\IGroupRepositor
         {
            if($g->name == $name)
            {
-                return $g;
+                return new \Illuminate\Database\Eloquent\Collection(array($g));
            }
         }
         

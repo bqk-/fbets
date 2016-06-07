@@ -73,8 +73,6 @@ class GroupTest extends TestCase {
                 $start, $end);
         $ret2 = $srv->CreateGroup('group test', 'plop plop plop plop',
                 $start, $end);
-        
-        $this->assertGreaterThan(0, $ret);
 	}
     
     public function testCreateGroupInviteAndJoin()
