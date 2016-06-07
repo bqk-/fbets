@@ -221,4 +221,9 @@ class UserService
         $this->UserRepository->RemovePoints($userId, $points);
     }
 
+    public function GetTopUsersPoints()
+    {
+        return $this->UserRepository->GetTopUsersPoints();
+    }
+
 }

@@ -354,16 +354,8 @@ class HomeController extends Controller {
 
     public function getLadder()
     {
-        $pages[] = array('name' => 'default', 'users' => $this->_betService->GetTopBettorBetween(0, 10));
-        $pages[] = array('name' => '10', 'users' => $this->_betService->GetTopBettorBetween(10, 25));
-        $pages[] = array('name' => '25', 'users' => $this->_betService->GetTopBettorBetween(25, 50));
-        $pages[] = array('name' => '50', 'users' => $this->_betService->GetTopBettorBetween(50, 100));
-        $pages[] = array('name' => '100', 'users' => $this->_betService->GetTopBettorBetween(100, 500));
-        $pages[] = array('name' => '500', 'users' => $this->_betService->GetTopBettorBetween(500, 1000));
-        $pages[] = array('name' => '1000', 'users' => $this->_betService->GetTopBettorBetween(1000, 10000));
-        $pages[] = array('name' => '10000', 'users' => $this->_betService->GetTopBettorSuperior(10000));
-
-        return View::make('home/top', array('pages' => $pages));
+        $users = $this->_userService->GetTopUsersPoints();
+        return View::make('home/top', array('users' => $users));
     }
 
     public function getSuggest()

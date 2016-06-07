@@ -54,34 +54,6 @@ class BetRepository implements IBetRepository
         return $bets;
     }
 
-    public function GetTopBettors($min, $max)
-    {
-        if($max > 0)
-        {
-            $users = DB::select(DB::raw('SELECT (SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND state > 0) as nb, COUNT(b.id)/(SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND state > 0) as percent,u.* FROM bets as b
-                                              LEFT JOIN users as u
-                                              ON u.id=b.id_user
-                                              WHERE b.state > 0
-                                              AND (SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND
-                                              state > 0) >= ' . $min . '
-                                              AND (SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND
-                                              state > 0) < ' . $max . '
-                                              AND b.state = 1 GROUP BY b.id_user ORDER BY percent DESC'));
-        }
-        else
-        {
-            $users = DB::select(DB::raw('SELECT (SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND state > 0) as nb, COUNT(b.id)/(SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND state > 0) as percent,u.* FROM bets as b
-                                              LEFT JOIN users as u
-                                              ON u.id=b.id_user
-                                              WHERE b.state > 0
-                                              AND (SELECT COUNT(id) FROM bets WHERE id_user=b.id_user AND
-                                              state>0) >= ' . $min . '
-                                              AND b.state = 1 GROUP BY b.id_user ORDER BY percent DESC'));
-        }
-
-        return $users;
-    }
-
     public function GetBetsToProcessOnGame($gameId)
     {
         return Bet::where('id_game', '=', $gameId)

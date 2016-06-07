@@ -97,4 +97,9 @@ class MockUserRepository implements \App\Repositories\Contracts\IUserRepository
         }
     }
 
+    public function GetTopUsersPoints()
+    {
+        //only for view
+    }
+
 }

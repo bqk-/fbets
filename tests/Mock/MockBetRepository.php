@@ -28,10 +28,6 @@ class MockBetRepository implements \App\Repositories\Contracts\IBetRepository
         
     }
 
-    public function GetTopBettors($min, $max) {
-        
-    }
-
     public function GetUserIncomingBets($id, $days = 0) {
         
     }

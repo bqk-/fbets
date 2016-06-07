@@ -3,6 +3,8 @@
 interface IUserRepository
 {
 
+    public function GetTopUsersPoints();
+
     public function RemovePoints($userId, $points);
 
     public function AddPoints($userId, $points);

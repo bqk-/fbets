@@ -122,5 +122,16 @@ class UserRepository implements IUserRepository
         $user->save();
     }
 
+    public function GetTopUsersPoints()
+    {
+        return User::
+                select('display', 'id', 'points', 
+            \DB::raw('(SELECT COUNT(id) FROM bets where state = ' . \App\Models\Types\VoteTypes::YES . ' and id_user = users.id) as w'),
+            \DB::raw('(SELECT COUNT(id) FROM bets where state = ' . \App\Models\Types\VoteTypes::NO . '  and id_user = users.id) as l'))
+                ->orderBy('points', 'desc')
+                ->havingRaw('(SELECT COUNT(id) FROM bets where state != ' . \App\Models\Types\VoteTypes::DONTCARE . ' and id_user = users.id) > 0')
+                ->take(100)->get();
+    }
+
 }
 

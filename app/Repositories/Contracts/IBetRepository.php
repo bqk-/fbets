@@ -16,6 +16,4 @@ interface IBetRepository
     public function Create($bet, $idGame, $userId);
 
     public function GetAllForUser($id);
-
-    public function GetTopBettors($min, $max);
 }
