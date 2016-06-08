@@ -175,7 +175,7 @@ class GroupRepository implements IGroupRepository
     {
         $groupObj = $this->Get($group);
         
-        return $groupObj->games()->contains(function ($key, $value) {
+        return $groupObj->games()->get()->contains(function ($key, $value) {
             return $value->id == $game;
         });
     }

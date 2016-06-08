@@ -57,7 +57,7 @@ class BetService
             throw new \App\Exceptions\InvalidOperationException('Game time passed.');
         }
         
-        if($this->GetUserBetForGame($idGame)->count() > 0)
+        if($this->GetUserBetForGame($idGame) != \App\Models\Types\GameStates::NONE)
         {
             throw new \App\Exceptions\InvalidOperationException('Already betted on that.');
         }
@@ -189,9 +189,30 @@ class BetService
         return $this->_betRepository->GetBetsToProcessOnGame($gameId);
     }
 
+    /**
+     * 
+     * @param int $idGame
+     * @return \App\Models\Types\GameStates
+     */
     public function GetUserBetForGame($idGame)
     {
-        return $this->_betRepository->GetUserBetForGame($idGame, $this->_currentUser->GetId());
+        $bet = $this->_betRepository->GetUserBetForGame($idGame, $this->_currentUser->GetId());
+        if($bet == null)
+        {
+            return \App\Models\Types\GameStates::NONE;
+        }
+        
+        if($bet->bet == \App\Models\Types\GameStates::HOME)
+        {
+            return \App\Models\Types\GameStates::HOME;
+        }
+        
+        if($bet->bet == \App\Models\Types\GameStates::VISITOR)
+        {
+            return \App\Models\Types\GameStates::VISITOR;
+        }
+        
+        return \App\Models\Types\GameStates::DRAW;
     }
 
 }

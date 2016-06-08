@@ -4,8 +4,8 @@ class IndexViewModel
 {
     public $Games;
     
-    public function __construct(GameViewModel ...$games)
+    public function __construct(array $games)
     {
-        $this->Games = $games;
+        $this->Games = new \Illuminate\Support\Collection($games);
     }
 }

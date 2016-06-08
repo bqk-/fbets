@@ -23,7 +23,7 @@ interface IPollRepository
     
     public function CreateApplicationPoll($iduser, $idgroup);
     
-    public function CreateGamePoll($idgame, $idgroup);
+    public function CreateGamePoll($idgame, $idgroup, $user);
     
     public function GetPollsCreatedBefore($date);
     

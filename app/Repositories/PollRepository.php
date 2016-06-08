@@ -48,9 +48,9 @@ class PollRepository implements IPollRepository
         return $this->CreatePoll($iduser, $idgroup, 0, PollTypes::USER_ADD);
     }
        
-    public function CreateGamePoll($idgame, $idgroup) 
+    public function CreateGamePoll($idgame, $idgroup, $iduser) 
     {
-        return $this->CreatePoll(0, $idgroup, $idgame, \App\Models\Types\PollTypes::GAME_ADD);
+        return $this->CreatePoll($iduser, $idgroup, $idgame, \App\Models\Types\PollTypes::GAME_ADD);
     }
 
     public function DeleteUserVotes($id_user, $idgroup)

@@ -70,7 +70,7 @@ class BetRepository implements IBetRepository
 
     public function GetUserBetForGame($idGame, $userId)
     {
-        return Bet::where('id_game', '=', $idGame)->where('id_user', '=', $userId)->get();
+        return Bet::where('id_game', '=', $idGame)->where('id_user', '=', $userId)->first();
     }
 
 }

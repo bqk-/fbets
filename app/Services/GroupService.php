@@ -315,7 +315,7 @@ class GroupService
         {
             throw new \App\Exceptions\InvalidOperationException('Game not found: ' . $game);
         }
-        
+        /*
         $limit = new \DateTime();
         $limit->add(\DateInterval::createFromDateString($this->DELAY_MINI_GROUP));
         $groupObj = $this->_groupRepository->Get($group);
@@ -329,7 +329,7 @@ class GroupService
         {
             throw new \App\Exceptions\InvalidOperationException('Game is not in the interval.');
         }
-        
+        */
         if($this->_groupRepository->GroupHasGame($group, $game))
         {
             throw new \App\Exceptions\InvalidOperationException('Already added');

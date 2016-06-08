@@ -39,9 +39,9 @@ class MockPollRepository implements \App\Repositories\Contracts\IPollRepository
         return $this->CreatePoll($iduser, $idgroup, 0, \App\Models\Types\PollTypes::USER_ADD);
     }
     
-    public function CreateGamePoll($idgame, $idgroup) 
+    public function CreateGamePoll($idgame, $idgroup, $user) 
     {
-        return $this->CreatePoll(0, $idgroup, $idgame, \App\Models\Types\PollTypes::GAME_ADD);
+        return $this->CreatePoll($user, $idgroup, $idgame, \App\Models\Types\PollTypes::GAME_ADD);
     }
 
     public function GetVotes($id_poll)

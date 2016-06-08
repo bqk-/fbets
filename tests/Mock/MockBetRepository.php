@@ -55,7 +55,7 @@ class MockBetRepository implements \App\Repositories\Contracts\IBetRepository
 
     public function GetUserBetForGame($idGame, $userId)
     {
-        return new \Illuminate\Database\Eloquent\Collection(array());
+        return null;
     }
 
 }

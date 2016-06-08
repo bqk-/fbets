@@ -3,7 +3,7 @@
   <div class="row">
     @if(Auth::check())
       <div class="col-md-12">
-      @if(!$games->isEmpty())
+      @if($model->Games->count() > 0)
         {!! Form::open(array('url' => '/', 'role' => 'form')) !!}
         <?php $date = null; $notFirst = false; $needBtn = false; ?>
         @foreach($model->Games as $game)
@@ -21,8 +21,8 @@
                 <li class="list-group-item" style="border:0">
                   <div class="row">
 
-                          @if($game->UserStatus > 0)
-                            <a href="{{ URL::to('bet/' .  $game->id . '/' . 
+                          @if($game->UserStatus == \App\Models\Types\GameStates::NONE)
+                            <a href="{{ URL::to('bet/' .  $game->Id . '/' . 
                                         \App\Models\Types\GameStates::HOME) }}">
                                   <div class="col-md-2 team" data-team="{{ $game->Team1->Id }}">
                                     <div class="row">
@@ -36,7 +36,7 @@
                                 </div>
                               </a>
                       
-                            <a href="{{ URL::to('bet/' .  $game->id . '/' . 
+                            <a href="{{ URL::to('bet/' .  $game->Id . '/' . 
                                         \App\Models\Types\GameStates::DRAW) }}">
                                 <div class="col-md-2 bets-input team">
                                     <p class="text-center">
@@ -49,7 +49,7 @@
                                 </div>
                             </a>
                           
-                        <a href="{{ URL::to('bet/' .  $game->id . '/' . 
+                        <a href="{{ URL::to('bet/' .  $game->Id . '/' . 
                                   \App\Models\Types\GameStates::VISITOR) }}">
                             <div class="col-md-2 team" data-team="{{ $game->Team2->Id }}">
                                 <div class="row text-right">
@@ -100,7 +100,7 @@
                           @endif
 
                     <div class="col-md-3 text-center">
-                        <img style="width: 32px; height: 32px;" src="{{ $game->Team2->Name }}" alt="Sport" />
+                        <img style="width: 32px; height: 32px;" src="{{ $game->Sport->Logo }}" alt="Sport" />
                         {{ $game->Sport->Name }}
                     </div>
                     <div class="col-md-1">
@@ -119,7 +119,7 @@
                             <ul class="dropdown-menu">
                                 @foreach(Auth::User()->groups as $g)
                                     <li><a title="{{trans('general.addtogroup')}}" 
-                                           href="{{URL::to('group/games/suggest/' . $game->Id)}}">{{$g->name}}</a></li>
+                                           href="{{URL::to('group/games/'.$g->id.'/suggest/' . $game->Id)}}">{{$g->name}}</a></li>
                                 @endforeach
                             </ul>
                           </div>

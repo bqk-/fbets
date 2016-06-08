@@ -271,7 +271,7 @@ class GroupController extends Controller
             if($action == 'suggest' && $game > 0)
             {
                 $this->_groupService->SuggestGameForGroup($id, $game);
-                return Redirect::to('group/games/' . $id);
+                return Redirect::to('group/polls/' . $id);
             }
         
             $games = $this->_groupService->GetGroupGames($id, 7);

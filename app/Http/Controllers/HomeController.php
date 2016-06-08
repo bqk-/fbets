@@ -73,7 +73,7 @@ class HomeController extends Controller {
                 $gamesView[] = $gView;
             }
             
-            return View::make('home/index', array('model' => $gamesView));
+            return View::make('home/index', array('model' => new \App\Models\ViewModels\IndexViewModel($gamesView)));
         }
 
         return View::make('home/index');

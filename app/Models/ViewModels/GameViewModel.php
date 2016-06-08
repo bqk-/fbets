@@ -23,8 +23,8 @@ class GameViewModel
             $date, 
             SportViewModel $sport,
             BetRates $rates,
-            GameStates $userStatus,
-            GroupGameStates ...$groupGameStatus)
+            int $userStatus,
+            array $groupGameStatus)
     {
         $this->Id = $id;
         $this->Date = $date;
