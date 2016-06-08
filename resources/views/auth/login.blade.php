@@ -25,10 +25,10 @@
         </div>
         <br />
     <div class="form-actions text-center">
-    {!! Form::submit(trans('forms.loginbutton'), array('class' => 'btn btn-default')) !!}
+    {!! Form::submit(trans('forms.loginbutton'), array('class' => 'btn btn-default big-button')) !!}
     </div>
     {!! Form::close() !!}
-  <p>Not a member?  <a href="register">Register here</a>.</p>
+  <p>{{ trans('general.notmember') }}  <a href="register">{{ trans('general.register_here') }}</a></p>
 </div>
 </div>
 </div>

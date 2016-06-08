@@ -5,6 +5,7 @@ use App\Services\GameService;
 use App\Services\BetService;
 use App\Services\UserService;
 use App\Services\SportService;
+use App\Services\GroupService;
 use \View;
 use \Redirect;
 use \Input;
@@ -32,17 +33,21 @@ class HomeController extends Controller {
     private $_betService;
     private $_userService;
     private $_sportService;
-
+    private $_groupService;
+    
     public function __construct(
             GameService $gameService, 
             BetService $betService, 
             UserService $userService,
-            SportService $sportService)
+            SportService $sportService,
+            GroupService $groupService)
     {
         $this->_gameService = $gameService;
         $this->_betService = $betService;
         $this->_userService = $userService;
         $this->_sportService = $sportService;
+        $this->_sportService = $sportService;
+        $this->_groupService = $groupService;
     }
 
     public function getIndex()
@@ -50,19 +55,25 @@ class HomeController extends Controller {
         if(Auth::check())
         {
             $games = $this->_gameService->GetNext7DaysGames();
-            $bets = $this->_betService->GetCurrentUserBetsForNext7Days();
-            $rates = array();
-            
+            $gamesView = array();
             
             foreach ($games as $g)
             {
-                $r = $this->_betService->GetRates($g->id);
-                $rates[$g->id] = $r;
+                $team1 = $g->team1()->first();
+                $team2 = $g->team2()->first();
+                $sport = $g->championship()->first()->sport()->first();
+                $gView = new \App\Models\ViewModels\GameViewModel($g->id, 
+                        new \App\Models\ViewModels\TeamViewModel($team1->id, $team1->name, \App\Helpers\ViewHelper::getImagePathFromId($team1->logo)), 
+                        new \App\Models\ViewModels\TeamViewModel($team2->id, $team2->name, \App\Helpers\ViewHelper::getImagePathFromId($team2->logo)),
+                        $g->date, 
+                        new \App\Models\ViewModels\SportViewModel($sport->id, $sport->name, \App\Helpers\ViewHelper::getImagePathFromId($sport->logo)),
+                        $this->_betService->GetRates($g->id), 
+                        $this->_betService->GetUserBetForGame($g->id), 
+                        $this->_groupService->GetGroupsStatus($g->id));
+                $gamesView[] = $gView;
             }
             
-            return View::make('home/index', array('games' => $games, 
-                'bets' => $bets,
-                'rates' => $rates));
+            return View::make('home/index', array('model' => $gamesView));
         }
 
         return View::make('home/index');

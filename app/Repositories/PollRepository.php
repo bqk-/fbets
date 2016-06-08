@@ -89,7 +89,7 @@ class PollRepository implements IPollRepository
 
     public function GetGamePoll($group, $game)
     {
-        return Poll::where('id_game', $game)->where('id_group', $group)->get();
+        return Poll::where('id_game', $game)->where('id_group', $group)->first();
     }
 
     public function GetPollsActiveForGroup($group)

@@ -35,7 +35,7 @@ input.form-control, textarea.form-control {
 }
 
 input:-webkit-autofill {
-  padding: 4% 0 0 10%;
+  /* padding: 4% 0 0 10%; */
   color: #979AAA !important;
   font-family: "Oswald" !important;
   width: 100%;
@@ -55,7 +55,7 @@ input:-webkit-autofill {
   border: 1px solid #979AAA !important;
   background: rgba(204,65,37,0.3) !important;
   border-radius: 0;
-  min-width: 280px;
+  /* min-width: 280px; */
     -webkit-box-shadow: 0 0 0 100px rgba(204,65,37,0.3) inset;
 }
 
@@ -66,7 +66,7 @@ input:-webkit-autofill {
   border: 1px solid #979AAA !important;
   background: rgba(204,65,37,0.3) !important;
   border-radius: 0;
-  min-width: 280px;
+  /* min-width: 280px; */
     -webkit-box-shadow: 0 0 0 100px rgba(204,65,37,0.3) inset;
 }
 
@@ -77,7 +77,7 @@ input:-webkit-autofill {
     border: 1px solid #979AAA !important;
     background: rgba(204,65,37,0.3) !important;
     border-radius: 0;
-    min-width: 280px;
+    /* min-width: 280px; */
     -webkit-box-shadow: 0 0 0 100px rgba(204,65,37,0.3) inset;
 }
 
@@ -104,6 +104,11 @@ input:-webkit-autofill {
     height: 25px;
     width: 100px;
     min-width: 0;
+}
+
+.btn.big-button
+{
+    min-width: 280px;
 }
 
 

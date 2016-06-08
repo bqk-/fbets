@@ -10,6 +10,8 @@ return array(
     'view' => 'View all',
     'incoming' => 'Incoming',
     'register' => 'Register',
+    'register_here' => 'Register here!',
+    'notmember' => 'Not a member?',
     'registerbet' => 'Register to bet !',
     'login' => 'Log in',
     'myprofile' => 'My profile',
@@ -30,6 +32,7 @@ return array(
     'group' => 'Groups',
     'draw' => 'Draw',
     'back' => 'Back',
+    'addtogroup' => 'Add to group',
 
     //Top bettors page
     'positionthead' => 'Pos.',

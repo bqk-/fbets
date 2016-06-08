@@ -255,11 +255,29 @@ class GroupController extends Controller
         );
     }
     
-    public function getGames($id)
+    public function getGames($id, $action = null, $game = 0)
     {
-        $games = $this->_groupService->GetGroupGames($id, 7);
+        if($id > 0)
+        {
+            $group = $this->_groupService->Get($id);
+            if($group == null)
+            {
+                return Redirect::to('/')->with(
+                        'error',
+                        trans('alert.notexisting_group')
+                    );
+            }
+            
+            if($action == 'suggest' && $game > 0)
+            {
+                $this->_groupService->SuggestGameForGroup($id, $game);
+                return Redirect::to('group/games/' . $id);
+            }
+        
+            $games = $this->_groupService->GetGroupGames($id, 7);
 
-        return view('group.games', array('games' => $games));
+            return view('group.games', array('games' => $games));
+        }   
     }
     
     public function getGame($id, $action, $param)
@@ -277,9 +295,7 @@ class GroupController extends Controller
                     'bets' => $bets));
                 
             default:
-                $games = $this->_groupService->GetGroupGames($id, 7);
-                return view('group.games', array('group' => $group,
-                    'games' => $games));
+                return Redirect::to('group/games/'. $id);
         } 
     }
     

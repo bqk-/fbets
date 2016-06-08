@@ -174,7 +174,7 @@ class GroupService
 
         if(!$this->IsInGroup($iduser, $idgroup) && !$this->HasApplication($iduser, $idgroup))
         {
-            $id = $this->_groupRepository->CreateApplication($iduser, $idgroup, $iduser, $message);
+            $this->_groupRepository->CreateApplication($iduser, $idgroup, $iduser, $message);
             $poll = $this->_pollRepository->CreateApplicationPoll($iduser, $idgroup);
 
             $this->GroupNotification($iduser, $idgroup, NotificationTypes::APPLY, $poll);
@@ -219,6 +219,11 @@ class GroupService
         {
             throw new InvalidArgumentException("group doesn't exit");
         }
+        
+        if(!$this->IsInGroup($this->_currentUser->GetId(), $idgroup))
+        {
+            throw new \App\Exceptions\InvalidOperationException('Not in group');
+        }
 
         if(!$this->IsInGroup($iduser, $idgroup) && !$this->HasApplication($iduser, $idgroup))
         {
@@ -240,11 +245,21 @@ class GroupService
 
     public function GetNotifications($idgroup)
     {
+        if(!$this->IsInGroup($this->_currentUser->GetId(), $idgroup))
+        {
+            throw new \App\Exceptions\InvalidOperationException('Not in group');
+        }
+        
         return $this->_groupRepository->GetNotifications($idgroup);
     }
 
     public function GetApplications($idgroup)
     {
+        if(!$this->IsInGroup($this->_currentUser->GetId(), $idgroup))
+        {
+            throw new \App\Exceptions\InvalidOperationException('Not in group');
+        }
+        
         return $this->_groupRepository->GetApplications($idgroup);
     }
 
@@ -265,11 +280,21 @@ class GroupService
             throw new InvalidArgumentException('days', $days);
         }
         
+        if(!$this->IsInGroup($this->_currentUser->GetId(), $id))
+        {
+            throw new \App\Exceptions\InvalidOperationException('Not in group');
+        }
+        
         return $this->_groupRepository->GetGroupGames($id, 7);
     }
 
     public function GetBetsForGroupAndGame($id, $param)
     {
+        if(!$this->IsInGroup($this->_currentUser->GetId(), $id))
+        {
+            throw new \App\Exceptions\InvalidOperationException('Not in group');
+        }
+        
         return $this->_groupRepository->GetBetsForGroupAndGame($id, $param);
     }
 
@@ -284,6 +309,7 @@ class GroupService
         {
             throw new \App\Exceptions\InvalidOperationException('Not in group');
         }
+        
         $gameObj = $this->_gameRepository->Get($game);
         if($gameObj == null)
         {
@@ -320,6 +346,7 @@ class GroupService
         return $poll;
     }
 
+    //job call
     public function AddGameToGroup($game, $group)
     {
          if($this->_gameRepository->Get($game) == null)
@@ -339,6 +366,49 @@ class GroupService
     public function GetAll()
     {
         return $this->_groupRepository->GetAll();
+    }
+
+    /**
+     * 
+     * @param int $game
+     * @return array
+     */
+    public function GetGroupsStatus($game)
+    {
+        if($this->_currentUser->GetGroups()->count() > 0)
+        {
+            $groups = $this->_currentUser->GetGroups();
+            $ret = array();
+            foreach ($groups as $g)
+            {
+                $ret[$g->id] = $this->GetGroupGameStatus($game, $g->id);
+            }
+            
+            return $ret;
+        }
+        
+        return array();
+    }
+    
+    /**
+     * 
+     * @param int $game
+     * @param int $group
+     * @return \App\Models\Types\GroupGameStates
+     */
+    public function GetGroupGameStatus(int $game, int $group)
+    {
+        if($this->_groupRepository->GroupHasGame($group, $game))
+        {
+            return \App\Models\Types\GroupGameStates::IN_GROUP;
+        }
+        
+        if($this->_pollRepository->GetGamePoll($group, $game) != null)
+        {
+            return \App\Models\Types\GroupGameStates::IN_VOTE;
+        }
+        
+        return \App\Models\Types\GroupGameStates::NOTHING;
     }
 
 }

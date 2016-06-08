@@ -98,6 +98,10 @@ class GameService
         return $id;
     }
 
+    /**
+     * 
+     * @return 
+     */
     public function GetNext7DaysGames()
     {
         return $this->_gameRepository->GetNext7DaysGameAllSport();

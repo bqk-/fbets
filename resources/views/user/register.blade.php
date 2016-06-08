@@ -47,7 +47,7 @@
         </div>
 
         <div class="form-actions text-center">
-        {!! Form::submit(trans('forms.registerbtn'), array('class' => 'btn btn-primary')) !!}
+        {!! Form::submit(trans('forms.registerbtn'), array('class' => 'btn btn-primary big-button')) !!}
         </div>
           {!! Form::close() !!}
       </div>

@@ -133,6 +133,8 @@ class GroupTest extends TestCase {
         $user->LogUser(2);
         $poll = $srv->ApplyForGroup($grp, 'cool guy boys! (testCreateGroupApplyAndJoin)');
         
+        //back to user in group else we don't get shit
+        $user->LogUser(1);
         $invits = $srv->GetApplications($grp);
         $this->assertEquals($invits->count(), 1);
         $this->assertEquals($invits->first()->id_user, 2);
@@ -200,6 +202,8 @@ class GroupTest extends TestCase {
         $user->LogUser(2);
         $poll = $srv->ApplyForGroup($grp, 'cool guy boys (testCreateGroupApplyAndRefuse)!');
         
+        //back to user in group else we don't get shit
+        $user->LogUser(1);
         $invits = $srv->GetApplications($grp);
         $this->assertEquals($invits->count(), 1);
         $this->assertEquals($invits->first()->id_user, 2);
@@ -249,6 +253,8 @@ class GroupTest extends TestCase {
         $user->LogUser(2);
         $srv->DeleteApplication($grp, 2);
         
+        //back to user in group else we don't get shit
+        $user->LogUser(1);
         $invits = $srv->GetApplications($grp);
         $this->assertEquals($invits->count(), 0);
         

@@ -31,19 +31,6 @@ class BetService
         return $b;
     }
 
-    public function GetCurrentUserBetsForNext7Days()
-    {
-        $bets = $this->_betRepository->GetUserIncomingBets($this->_currentUser->GetId(), 7);
-
-        $return = array();
-        foreach ($bets as $bet)
-        {
-            $return[$bet->id_game] = $bet;
-        }
-
-        return $return;
-    }
-
     public function GetUserPendingBets()
     {
         $bets = $this->_betRepository->GetUserIncomingBets($this->_currentUser->GetId(), 0);
