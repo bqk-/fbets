@@ -43,6 +43,8 @@ class GroupGameTest extends TestCase
     * @expectedException \App\Exceptions\InvalidOperationException
     * @expectedExceptionMessage Invalid operation: Game is not in the interval.
     */
+    
+    /* Removed, not applicable yet
     public function testAddGamesToGroupAndGameIsNotInTheInterval()
 	{   
         $user = $this->app->make('App\Services\Contracts\ICurrentUser');
@@ -74,4 +76,6 @@ class GroupGameTest extends TestCase
                  $start, $end);
         $poll = $srv->SuggestGameForGroup($grp, 3);
 	}
+     * 
+     */
 }

@@ -340,7 +340,7 @@ class GroupService
             throw new \App\Exceptions\InvalidOperationException('Already voting for it');
         }
         
-        $poll = $this->_pollRepository->CreateGamePoll($game, $game);
+        $poll = $this->_pollRepository->CreateGamePoll($game, $game, $this->_currentUser->GetId());
         $this->GroupNotification($this->_currentUser->GetId(), $group, NotificationTypes::POLL_START, $poll);
         
         return $poll;
