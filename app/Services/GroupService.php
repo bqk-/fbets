@@ -340,7 +340,7 @@ class GroupService
             throw new \App\Exceptions\InvalidOperationException('Already voting for it');
         }
         
-        $poll = $this->_pollRepository->CreateGamePoll($game, $game, $this->_currentUser->GetId());
+        $poll = $this->_pollRepository->CreateGamePoll($game, $group, $this->_currentUser->GetId());
         $this->GroupNotification($this->_currentUser->GetId(), $group, NotificationTypes::POLL_START, $poll);
         
         return $poll;
@@ -349,18 +349,18 @@ class GroupService
     //job call
     public function AddGameToGroup($game, $group)
     {
-         if($this->_gameRepository->Get($game) == null)
+        if($this->_gameRepository->Get($game) == null)
         {
             throw new \App\Exceptions\InvalidOperationException('Game not found: ' . $game);
         }
-        
+
         if($this->_groupRepository->GroupHasGame($group, $game))
         {
             throw new \App\Exceptions\InvalidOperationException('Already added');
         }
-        
+
         $this->_groupRepository->AddGameToGroup($game, $group);
-        $this->GroupNotification(null, $group, NotificationTypes::POLL_END, 0);
+        $this->GroupNotification(0, $group, NotificationTypes::POLL_END, 0);
     }
 
     public function GetAll()
@@ -377,7 +377,7 @@ class GroupService
     {
         if($this->_currentUser->GetGroups()->count() > 0)
         {
-            $groups = $this->_currentUser->GetGroups();
+            $groups = $this->_currentUser->GetGroups()->get();
             $ret = array();
             foreach ($groups as $g)
             {
@@ -402,7 +402,7 @@ class GroupService
         {
             return \App\Models\Types\GroupGameStates::IN_GROUP;
         }
-        
+
         if($this->_pollRepository->GetGamePoll($group, $game) != null)
         {
             return \App\Models\Types\GroupGameStates::IN_VOTE;

@@ -24,7 +24,7 @@ class GroupRepository implements IGroupRepository
         $group = Group::find($id);
         if($group == null)
         {
-            throw new Exception('group not found:' . $id);
+            throw new \App\Exceptions\NotFoundException('group', 'id', $id);
         }
 
         return $group;
@@ -150,7 +150,7 @@ class GroupRepository implements IGroupRepository
     public function GetGroupGames($id, $days)
     {
         $group = $this->Get($id);
-        return $group->games();
+        return $group->games()->get();
     }
     
     public function GetBetsForGroupAndGame($idgroup, $idgame)
@@ -175,9 +175,15 @@ class GroupRepository implements IGroupRepository
     {
         $groupObj = $this->Get($group);
         
-        return $groupObj->games()->get()->contains(function ($key, $value) {
-            return $value->id == $game;
-        });
+        foreach($groupObj->games()->get() as $g)
+        {
+            if($g->id == $game)
+            {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     public function GetAll()

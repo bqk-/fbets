@@ -104,25 +104,37 @@
                         {{ $game->Sport->Name }}
                     </div>
                     <div class="col-md-1">
-                        <small>
+                        
                             <p class="text-center pull-right">
+                                <small>
                                 {{ \App\Helpers\DateHelper::sqlDateToHourOnly($game->Date) }}
+                                </small>
                             </p>
-                        </small>
+
                     </div>
                     <div class="col-md-1">
                         @if(Auth::User()->groups()->count() > 0)
-                        <div class="btn-group">
-                            <button type="button" style="width: 50px;" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                              + <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                @foreach(Auth::User()->groups as $g)
-                                    <li><a title="{{trans('general.addtogroup')}}" 
-                                           href="{{URL::to('group/games/'.$g->id.'/suggest/' . $game->Id)}}">{{$g->name}}</a></li>
-                                @endforeach
-                            </ul>
-                          </div>
+                            <?php
+                                $mgs = null;
+                                foreach(Auth::User()->groups as $g)
+                                {
+                                    if($game->GroupGameStatus[$g->id] == \App\Models\Types\GroupGameStates::NOTHING)
+                                    {
+                                        $mgs .= '<li><a title="' . trans('general.addtogroup').'" 
+                                           href="'.URL::to('group/games/'.$g->id.'/suggest/' . $game->Id).'">'.htmlentities($g->name).'</a></li>';
+                                    }
+                                }
+                                    
+                                if($mgs != null)
+                                {
+                                    echo '<div class="btn-group">
+                                        <button type="button" style="width: 50px;" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                          + <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu">' . $mgs . '
+                                            </ul></div>';
+                                }           
+                            ?>
                         @endif
                     </div>
                   </div>

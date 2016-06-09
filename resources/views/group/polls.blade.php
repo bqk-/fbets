@@ -19,28 +19,21 @@
                     </div>
                     @if($p->MyVote == \App\Models\Types\VoteTypes::DONTCARE)
                         <div class="col-md-1">
-                            <a href="{{ URL::to('group/polls/' . $p->Id . '/accept') }}">
+                            <a href="{{ URL::to('group/polls/' . $model->Group->id . '/accept/' . $p->Id) }}">
                                 <span class="btn btn-success glyphicon glyphicon-ok"></span>
                             </a>
                         </div>
                         <div class="col-md-1">
-                            <a href="{{ URL::to('group/polls/' . $p->Id . '/refuse') }}">
+                            <a href="{{ URL::to('group/polls/' . $model->Group->id . '/refuse/' . $p->Id) }}">
                                 <span class="btn btn-danger glyphicon glyphicon-remove"></span>
                             </a>
                         </div>
                     @else
-                        <div class="col-md-1">
+                        <div class="col-md-2 text-center">
                             @if($p->MyVote == \App\Models\Types\VoteTypes::YES)
-                                <span class="btn btn-success glyphicon glyphicon-ok"></span>
+                                <span class="text-success glyphicon glyphicon-ok"></span>
                             @else
-                                -
-                            @endif
-                        </div>
-                        <div class="col-md-1">
-                            @if($p->MyVote == \App\Models\Types\VoteTypes::NO)
-                                <span class="btn btn-danger glyphicon glyphicon-remove"></span>
-                            @else
-                                -
+                                <span class="text-danger glyphicon glyphicon-remove"></span>
                             @endif
                         </div>
                     @endif
@@ -74,14 +67,14 @@
                     @else
                         <div class="col-md-1">
                             @if($p->MyVote == \App\Models\Types\VoteTypes::YES)
-                                <span class="btn btn-success glyphicon glyphicon-ok"></span>
+                                <span class="text-success glyphicon glyphicon-ok"></span>
                             @else
                                 -
                             @endif
                         </div>
                         <div class="col-md-1">
                             @if($p->MyVote == \App\Models\Types\VoteTypes::NO)
-                                <span class="btn btn-danger glyphicon glyphicon-remove"></span>
+                                <span class="text-danger glyphicon glyphicon-remove"></span>
                             @else
                                 -
                             @endif

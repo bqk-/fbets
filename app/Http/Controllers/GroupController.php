@@ -3,6 +3,7 @@
 use App\Services\GroupService;
 use App\Services\GameService;
 use App\Services\PollService;
+use App\Services\BetService;
 use App\Services\Contracts\ICurrentUser;
 use \Redirect;
 use \View;
@@ -15,16 +16,19 @@ class GroupController extends Controller
     private $_gameService;
     private $_currentUser;
     private $_pollService;
+    private $_betService;
     
     public function __construct(GroupService $groupService, 
             GameService $gameService,
             PollService $pollService,
+            BetService $betService,
             ICurrentUser $user)
     {
         $this->_groupService = $groupService;
         $this->_gameService = $gameService;
         $this->_currentUser = $user;
         $this->_pollService = $pollService;
+        $this->_betService = $betService;
     }
 
     public function getIndex()
@@ -270,13 +274,30 @@ class GroupController extends Controller
             
             if($action == 'suggest' && $game > 0)
             {
-                $this->_groupService->SuggestGameForGroup($id, $game);
+                $poll = $this->_groupService->SuggestGameForGroup($id, $game);
+                $this->_pollService->AddVote($poll, \App\Models\Types\VoteTypes::YES);
                 return Redirect::to('group/polls/' . $id);
             }
         
             $games = $this->_groupService->GetGroupGames($id, 7);
+            $gamesView = array();
+            foreach ($games as $g)
+            {
+                $team1 = $g->team1()->first();
+                $team2 = $g->team2()->first();
+                $sport = $g->championship()->first()->sport()->first();
+                $gView = new \App\Models\ViewModels\GameViewModel($g->id, 
+                        new \App\Models\ViewModels\TeamViewModel($team1->id, $team1->name, \App\Helpers\ViewHelper::getImagePathFromId($team1->logo)), 
+                        new \App\Models\ViewModels\TeamViewModel($team2->id, $team2->name, \App\Helpers\ViewHelper::getImagePathFromId($team2->logo)),
+                        $g->date, 
+                        new \App\Models\ViewModels\SportViewModel($sport->id, $sport->name, \App\Helpers\ViewHelper::getImagePathFromId($sport->logo)),
+                        $this->_betService->GetRates($g->id), 
+                        $this->_betService->GetUserBetForGame($g->id), 
+                        array());
+                $gamesView[] = $gView;
+            }
 
-            return view('group.games', array('games' => $games));
+            return view('group.games', array('model' => new \App\Models\ViewModels\GroupGamesViewModel($group, $gamesView)));
         }   
     }
     
@@ -299,19 +320,19 @@ class GroupController extends Controller
         } 
     }
     
-    public function getPolls($id, $action = null)
+    public function getPolls($id, $action = null, $poll = 0)
     {
         if($id > 0)
         {
-            if($action != null)
+            if($action != null && $poll > 0)
             {
                 if($action == 'accept')
                 {
-                    $this->_pollService->AddVote($id, \App\Models\Types\VoteTypes::YES);
+                    $this->_pollService->AddVote($poll, \App\Models\Types\VoteTypes::YES);
                 }
                 else if($action == 'refuse')
                 {
-                    $this->_pollService->AddVote($id, \App\Models\Types\VoteTypes::NO);
+                    $this->_pollService->AddVote($poll, \App\Models\Types\VoteTypes::NO);
                 }
                 
                 return Redirect::to('group/polls/' . $id);

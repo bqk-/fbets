@@ -11,7 +11,7 @@ class NotFoundException extends Exception
     {
         $this->message = "User " . Auth::user()->id . "
             tried to access <" . $objectName . ">
-            with " . $field . " = " . var_dump($value);
+            with " . $field . " = " . var_export($value, true);
 
         parent::__construct($this->message,
             111,
