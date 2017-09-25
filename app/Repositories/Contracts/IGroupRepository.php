@@ -2,6 +2,11 @@
 
 interface IGroupRepository
 {
+    public function GetUserPointsInGroup($idGroup, $idUser);
+    
+    public function AddPointsToUserInGroup($idGroup, $idUser, $points);
+
+    public function UserIsActive($idGroup, $idUser);
 
     public function GetAll();
 

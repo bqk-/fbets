@@ -12,6 +12,7 @@ use App\Services\ChampionshipService;
 use App\Services\GameService;
 use App\Services\BetService;
 use App\Services\UserService;
+use App\Services\GroupService;
 
 class ProcessBets extends Job implements ShouldQueue
 {
@@ -43,6 +44,11 @@ class ProcessBets extends Job implements ShouldQueue
     private $UserService;
     
     /**
+     * @var App\Services\GroupService
+     */
+    private $GroupService;
+    
+    /**
      * Create a new job instance.
      *
      * @return void
@@ -64,13 +70,15 @@ class ProcessBets extends Job implements ShouldQueue
         ChampionshipService $championshipService,
         GameService $gameService,
         BetService $betService,
-        UserService $userService)
+        UserService $userService,
+        GroupService $groupService)
     {
         $this->AdminService = $adminService;
         $this->ChampionshipService = $championshipService;
         $this->GameService = $gameService;
         $this->BetService = $betService;
         $this->UserService = $userService;
+        $this->GroupService = $groupService;
         
         $game = $this->GameService->Get($this->GameId);
         if($game == null)
@@ -118,11 +126,13 @@ class ProcessBets extends Job implements ShouldQueue
             if ($stateBet == $state)
             {
                 $this->UserService->AddPoints($bet->id_user, ceil($this->MAXPOINTS * $ratesArray[$stateBet]));
+                $this->GroupService->AddPointsGroupsGame($bet->id_user, $bet->id_game, ceil($this->MAXPOINTS * $ratesArray[$stateBet]));
                 $this->BetService->MarkAsDone($bet->id, \App\Models\Types\BetStates::WIN);
             }
             else
             {
                 $this->UserService->RemovePoints($bet->id_user, ceil($this->MAXPOINTS * $ratesArray[$stateBet]));
+                $this->GroupService->RemovePointsGroupsGame($bet->id_user, $bet->id_game, ceil($this->MAXPOINTS * $ratesArray[$stateBet]));
                 $this->BetService->MarkAsDone($bet->id, \App\Models\Types\BetStates::LOOSE);
             }    
             

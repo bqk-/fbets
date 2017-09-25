@@ -163,7 +163,7 @@ class GroupRepository implements IGroupRepository
     {
         $groupObj = $this->Get($group);
         $gameObj = Game::find($game);
-        if($game == null)
+        if($gameObj == null)
         {
             throw new \App\Exceptions\NotFoundException('Game not found:' . $game);
         }
@@ -189,6 +189,22 @@ class GroupRepository implements IGroupRepository
     public function GetAll()
     {
         return Group::all();
+    }
+
+    public function UserIsActive($idGroup, $idUser)
+    {
+        //todo: this
+        return true;
+    }
+
+    public function AddPointsToUserInGroup($idGroup, $idUser, $points)
+    {
+        
+    }
+
+    public function GetUserPointsInGroup($idGroup, $idUser)
+    {
+        
     }
 
 }

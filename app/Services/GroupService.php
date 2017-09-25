@@ -411,4 +411,33 @@ class GroupService
         return \App\Models\Types\GroupGameStates::NOTHING;
     }
 
+    public function AddPointsGroupsGame($idUser, $idGame, $points)
+    {
+        if($this->_currentUser->GetGroups()->count() > 0)
+        {
+            $groups = $this->_currentUser->GetGroups()->get();
+            foreach ($groups as $g)
+            {
+                if(!$this->_groupRepository->GroupHasGame($g->id, $idGame))
+                {
+                    continue;
+                }
+                
+                if($this->GroupIsActive($g->id) && $this->_groupRepository->UserIsActive($g->id, $idUser))
+                {
+                    $this->_groupRepository->AddPointsToUserInGroup($g->id, $idUser, $points);
+                }
+            }
+            
+            return $ret;
+        }
+        
+    }
+
+    public function GroupIsActive($groupId)
+    {
+        //todo: this
+        return true;
+    }
+
 }

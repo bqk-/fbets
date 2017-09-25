@@ -2,7 +2,7 @@
 
 class GroupGameTest extends TestCase 
 {
-    public function testAddGameToGroup()
+    public function testGameGroupFull()
 	{   
         $user = $this->app->make('App\Services\Contracts\ICurrentUser');
         $user->LogUser(1);
@@ -37,6 +37,12 @@ class GroupGameTest extends TestCase
         
         $job = new \App\Jobs\ClosePoll($poll);
         $job->handle($pollSrv, $srv);
+        
+        $gameJob = new \App\Job\ProcessBets(2);
+        $gameJob->handle($adminService, $championshipService, $gameService, $this->app->make('App\Services\BetService'),
+                $this->app->make('App\Services\UserService'), $srv);
+        
+        
 	}
     
     /**
